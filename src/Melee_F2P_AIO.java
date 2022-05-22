@@ -10,10 +10,12 @@ import org.dreambot.api.methods.skills.Skills;
 import org.dreambot.api.script.Category;
 import org.dreambot.api.script.ScriptManifest;
 import org.dreambot.api.script.impl.TaskScript;
+import org.dreambot.api.script.listener.ChatListener;
 import org.dreambot.api.script.listener.GameStateListener;
 import org.dreambot.api.script.listener.InventoryListener;
 import org.dreambot.api.utilities.Timer;
 import org.dreambot.api.wrappers.items.Item;
+import org.dreambot.api.wrappers.widgets.message.Message;
 import tasks.allMonsters.MajorLevel;
 import tasks.allMonsters.SwitchCombatStyle;
 import tasks.combat.AttackMonster;
@@ -51,7 +53,7 @@ import java.util.List;
         version = 1.1)
 
 
-public class Melee_F2P_AIO extends TaskScript implements InventoryListener, GameStateListener {
+public class Melee_F2P_AIO extends TaskScript implements InventoryListener, GameStateListener, ChatListener {
     Config config = Config.getConfig();
     private Image attImage;
     private Image strImage;
@@ -375,4 +377,12 @@ public class Melee_F2P_AIO extends TaskScript implements InventoryListener, Game
             config.timer.resume();
         }
     }
+
+    @Override
+    public void onGameMessage(Message message) {
+        if (message.getMessage().contains(config.teleBlockedString)) {
+            config.setTeleBlocked(true);
+        }
+    }
+
 }

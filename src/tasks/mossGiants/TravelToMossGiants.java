@@ -20,7 +20,7 @@ public class TravelToMossGiants extends AbstractTask {
 
     public int execute() {
         log("[T] Traveling to moss giants");
-        wm.WalkToWildy(config.mossGiantWildernessArea, "Moss Giants through ditch");
+        wm.WalkToWildy(config.mossGiantWildernessArea, "Moss Giants");
         return 0;
     }
 

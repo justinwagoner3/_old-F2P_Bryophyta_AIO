@@ -6,6 +6,5 @@
   * need to limit the boundary
  * standing south of the house attempted to tele home to travel to rats
  * failed to walk to lumbridge bank from swamp, ran west then east repeated in the northwest part of swamp
- * Picking up chaos runes is not working
  * When attacking a monster, if it goes to loot, should return to attacking same monster
- *
+ * Attacks monster, drinks potion, attacks different monster when orig monster was right next to me still

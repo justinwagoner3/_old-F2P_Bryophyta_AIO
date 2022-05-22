@@ -29,6 +29,7 @@ public class Config {
 
     private boolean isDistracted = false;
     public boolean justLoggedOut = false;
+    private boolean teleBlocked = false;
 
     private String curMonster = "Giant rat";
 
@@ -37,6 +38,9 @@ public class Config {
     private int nextDrinkPotionBoostedRealDiff = 0;
 
     private boolean majorLevelJustReached = false;
+
+    // TODO - use this as a check when geared for certain levels, that way loop only has to check one variable instead of long condition
+    private boolean gearedUp = false;
     private CombatStyle lastMajorLevelReached = CombatStyle.ATTACK;
 
     private String[] gearList = {this.amuletOfPower,this.blackCape,this.leatherBoots,this.leatherGloves,this.ironPlatebody,this.ironPlatelegs,this.ironFullHelm,this.mithPlatebody,
@@ -50,6 +54,9 @@ public class Config {
     private int[] lootItemsPrices = {this.lawRunePrice,this.cosmicRunePrice,this.natureRunePrice,this.deathRunePrice,this.mossyKeyPrice,this.uncutRubyPrice,
             this.blackSqShieldPrice,this.mithSwordPrice,this.steelKiteshieldPrice,this.steelArrowPrice,this.chaosRunePrice};
 
+
+    // chat messages
+    public final String teleBlockedString = "";
 
 
     // TODO - total prices, not price per
@@ -274,5 +281,13 @@ public class Config {
 
     public void setGearList(String[] gearList) {
         this.gearList = gearList;
+    }
+
+    public boolean isTeleBlocked() {
+        return teleBlocked;
+    }
+
+    public void setTeleBlocked(boolean teleBlocked) {
+        this.teleBlocked = teleBlocked;
     }
 }

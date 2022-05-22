@@ -16,7 +16,7 @@ import static org.dreambot.api.methods.MethodProvider.*;
 
 public class WalkingMethods extends AbstractMethod {
 
-    /*
+
     // TODO - might want to set it to return bool to maybe be used for double checking
     public void Walk(Area destination, String location){
         log("[m] Walking to " + location);
@@ -28,8 +28,8 @@ public class WalkingMethods extends AbstractMethod {
             }
         }
     }
-    */
 
+/*
     public void Walk(Area destination, String location){
         log("[m] Walking to " + location);
 
@@ -44,7 +44,7 @@ public class WalkingMethods extends AbstractMethod {
             }
 
     }
-
+*/
     public boolean WalkThroughFeroxEnclave(){
         log("[m] Walking through ferox enclave");
         // TODO- play around with 6 arg
@@ -74,7 +74,7 @@ public class WalkingMethods extends AbstractMethod {
     }
 
     public void WalkToWildy(Area destination, String location){
-
+        log("[m] Walk To Wildy " + location);
         // if already in Wildy, no need to jump the barrier
         if(getLocalPlayer().getY() > config.edgevilleWildernessDitchNorthArea.getY()){
             Walk(destination,location);
