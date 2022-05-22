@@ -1,10 +1,8 @@
 import config.Config;
 import dataStructures.itemPrice;
-import dataStructures.nameQuantity;
 import org.dreambot.api.Client;
-import org.dreambot.api.methods.Calculations;
+import org.dreambot.api.data.GameState;
 import org.dreambot.api.methods.container.impl.bank.Bank;
-import org.dreambot.api.methods.grandexchange.GrandExchange;
 import org.dreambot.api.methods.input.Camera;
 import org.dreambot.api.methods.skills.Skill;
 import org.dreambot.api.methods.skills.SkillTracker;
@@ -12,7 +10,9 @@ import org.dreambot.api.methods.skills.Skills;
 import org.dreambot.api.script.Category;
 import org.dreambot.api.script.ScriptManifest;
 import org.dreambot.api.script.impl.TaskScript;
+import org.dreambot.api.script.listener.GameStateListener;
 import org.dreambot.api.script.listener.InventoryListener;
+import org.dreambot.api.utilities.Timer;
 import org.dreambot.api.wrappers.items.Item;
 import tasks.allMonsters.MajorLevel;
 import tasks.allMonsters.SwitchCombatStyle;
@@ -34,6 +34,8 @@ import tasks.rats.WithdrawInvRats;
 import tasks.shared_rats_frogs.TravelToLumbridgeBank;
 import tasks.rats.TravelToRats;
 import tasks.allMonsters.UpgradeScimitar;
+import tasks.utility.StartClockOnLogIn;
+import tasks.utility.StopClockOnLogOut;
 
 import javax.imageio.ImageIO;
 import java.awt.*;
@@ -49,9 +51,8 @@ import java.util.List;
         version = 1.1)
 
 
-public class Melee_F2P_AIO extends TaskScript implements InventoryListener {
+public class Melee_F2P_AIO extends TaskScript implements InventoryListener, GameStateListener {
     Config config = Config.getConfig();
-    private Anti time = new Anti(this);
     private Image attImage;
     private Image strImage;
     private Image defImage;
@@ -74,7 +75,9 @@ public class Melee_F2P_AIO extends TaskScript implements InventoryListener {
             LoadImages();
 
             // used for tracking time
-            time = new Anti(this);
+            //config.time = new Anti();
+            config.timer = new Timer();
+
 
             // load the config
             Config config = Config.getConfig();
@@ -118,13 +121,15 @@ public class Melee_F2P_AIO extends TaskScript implements InventoryListener {
                     new EquipGearInvMossGiants(),
                     new TravelToMossGiants(),
                     new TravelToFeroxBank(),
-                    new WithdrawInvMossGiants()
+                    new WithdrawInvMossGiants(),
+                    new StartClockOnLogIn(),
+                    new StopClockOnLogOut()
             );
             log("Nodes Added");
 
             // zoom all the way out
             log("Setting zoom");
-            while (Camera.getZoom() != 181) {
+            if(Camera.getZoom() != 181) {
                 Camera.setZoom(181);
             }
             log("Finished Setting zoom");
@@ -163,23 +168,10 @@ public class Melee_F2P_AIO extends TaskScript implements InventoryListener {
         }
     }
 
-    private class Anti {
-
-        public final long START_TIME;
-
-        public Anti(Melee_F2P_AIO melee_f2P_aio) {
-            START_TIME = System.currentTimeMillis();
-        }
-
-        public long getElapsedTime() {
-            return System.currentTimeMillis() - START_TIME;
-        }
-
-    }
-
 
     public void onPaint(Graphics g) {
-        long ms = time.getElapsedTime();
+        //long ms = config.time.getElapsedTime();
+        long ms = config.timer.elapsed();
         long hours = ms / 3600000;
         ms = ms % 3600000;
         long minutes = ms / 60000;
@@ -238,13 +230,13 @@ public class Melee_F2P_AIO extends TaskScript implements InventoryListener {
                 "%d", mossyKeyCount
         );
         String mossyKeysPHText = String.format(
-                "(%.1f)", (float) (mossyKeyCount * 3600000) / time.getElapsedTime()
+                "(%.1f)", (float) (mossyKeyCount * 3600000) / config.timer.elapsed()
         );
         String profitText = String.format(
                 "%.1fk", (float) profit / 1000
         );
         String profitPHText = String.format(
-                "(%.1fk)", (float) (profit * 3600000) / time.getElapsedTime() / 1000
+                "(%.1fk)", (float) (profit * 3600000) / config.timer.elapsed() / 1000
         );
 
 
@@ -373,4 +365,14 @@ public class Melee_F2P_AIO extends TaskScript implements InventoryListener {
         }
     }
 
+    // TODO - i think this will stop/start the timer but not for AFK breaks (maybe not the worst?)
+    @Override
+    public void onGameStateChange(GameState gameState) {
+        if(gameState.equals(GameState.LOGIN_SCREEN)){
+            config.timer.pause();
+        }
+        if(gameState.equals(GameState.LOGGING_IN)){
+            config.timer.resume();
+        }
+    }
 }

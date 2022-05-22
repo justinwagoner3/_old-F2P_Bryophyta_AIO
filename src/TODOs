@@ -2,15 +2,16 @@
     * HopWorlds
     * evade PKer
 
+ * The walking path out of ferox enclave is pretty bot like
  * Walk:
     * have to manually enable walking out of enclave right now
     * having the walk in a while loop will make it impossible to eat
+        * temp fixed by EscapePker eating while running
  * Loot:
     * add a check if inv is full to still pick up stackables
         * itemToPickUp.getItem().isStackable()
     * could probably just loot everything over a certain getItem.getValue()
  * If running out of potions before food, should stay and fight insteaf of drink potion and run right to bank
- * Make sure f2p world is selected before logging in
  * buy gear:
     * check if i have the item in bank first before buying
     * set activate condition to activate if any of the gear is missing

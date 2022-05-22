@@ -17,7 +17,7 @@ public class WithdrawInvMossGiants extends AbstractTask {
 
     @Override
     public boolean accept() {
-        return config.feronEnclaveBank.contains(Players.localPlayer())
+        return config.feroxEnclaveBank.contains(Players.localPlayer())
                 && (!Inventory.contains(config.lobster) || !Inventory.contains(config.strPot4))
                 && Skills.getRealLevel(Skill.DEFENCE) >= 40; // Low enough stats to be fighting rats
     }
@@ -35,7 +35,7 @@ public class WithdrawInvMossGiants extends AbstractTask {
 
         // open bank, deposit everything
         bm.OpenBank();
-        bm.DepositInventory();
+        bm.DepositAllInventory();
 
 
         // withdraw items

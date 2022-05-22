@@ -1,177 +1,91 @@
 package tasks.initialization;
 
+import methods.BankMethods;
+import methods.GrandExchangeMethods;
+import methods.WalkingMethods;
 import org.dreambot.api.methods.Calculations;
 import org.dreambot.api.methods.container.impl.Inventory;
 import org.dreambot.api.methods.container.impl.bank.Bank;
-import org.dreambot.api.methods.grandexchange.GrandExchange;
-import org.dreambot.api.methods.interactive.Players;
-import org.dreambot.api.methods.skills.Skill;
-import org.dreambot.api.methods.skills.Skills;
+import org.dreambot.api.methods.container.impl.equipment.Equipment;
 import tasks.AbstractTask;
 
 public class BuyGear extends AbstractTask {
+
+    private WalkingMethods wm = new WalkingMethods();
+    private BankMethods bm = new BankMethods();
+
+    private GrandExchangeMethods gem = new GrandExchangeMethods();
+
+
     @Override
     public boolean accept() {
-        // TODO - update this for all items
-        return Skills.getRealLevel(Skill.STRENGTH) == 1 && config.grandExchangeArea.contains(Players.localPlayer()) && !Bank.contains("Rune chainbody");
+        if(Equipment.isEmpty() && config.lumbridgeTeleArea.contains(getLocalPlayer())){ // just died or started
+            return true;
+        }
+        else{
+            if(config.isInitBankOpened()){
+                if(!Bank.contains(config.strPot4) || !Bank.contains(config.lobster)){
+                    return true;
+                }
+                else{
+                    for(int i = 0; i < config.getGearList().length; i++){
+                        if(!Bank.contains(config.getGearList()[i]) && !Inventory.contains(config.getGearList()[i]) && !Equipment.contains(config.getGearList()[i])){
+                            return true;
+                        }
+                    }
+                }
+            }
+        }
+        return false;
     }
 
     @Override
     public int execute() {
         log("[T] Buying Gear");
-        /*
-        Bank.open();
-        sleep(400);
-        Bank.close();
-        if(Bank.contains("Rune chainbody")){
-            log("Contains");
-        }
+        // travel to the GE
+        wm.Walk(config.grandExchangeArea,"GE");
 
-        this works for checking if bank contains - HAVE TO HAVE OPENED IT ONCE
-         */
-
-        // open bank and deposit everything, withdraw cash stack
-        // TODO - update using new methods
-        if(Bank.isOpen() || Bank.open()) {
-            sleepUntil(this::bankIsOpen, Calculations.random(2000, 3000));
-            if(Inventory.onlyContains("Coins")){
-                if(Bank.close()){
-                    sleepUntil(this::bankIsClosed,Calculations.random(2000,3000));
-                }
-            }
-            if(!Inventory.isEmpty()) {
-                if (Bank.depositAllItems()) {
-                    sleepUntil(this::invIsEmpty, Calculations.random(2000, 3000));
-                }
-            }
-            if(Inventory.isEmpty()){
-                if(Bank.withdrawAll("Coins")){
-                    sleepUntil(this::invIsNotEmpty,Calculations.random(2000,3000));
-                }
-            }
-        }
+        // Open bank, deposit all inv and gear, withdraw cash stack
+        bm.OpenBank();
+        bm.DepositAllInventory();
+        bm.DepositAllGear();
+        bm.WithdrawOnlyCoins();
+        bm.CloseBank();
 
         // open ge, buy gear, deposit it all in bank
-        if(Inventory.onlyContains("Coins")) {
-            if (GrandExchange.open()) {
-                sleepUntil(GrandExchange::isOpen, Calculations.random(2000, 3000));
-                if(GrandExchange.buyItem(config.amuletOfPower, 1, Calculations.random(5, 10) * 10000)){
-                    sleepUntil(GrandExchange::isReadyToCollect,Calculations.random(100000,200000));
-                    GrandExchange.collect();
-                }
-                if(GrandExchange.buyItem(config.blackCape, 1, Calculations.random(1, 10) * 10000)){
-                    sleepUntil(GrandExchange::isReadyToCollect,Calculations.random(100000,200000));
-                    GrandExchange.collect();
-                }
-                if(GrandExchange.buyItem(config.leatherBoots, 1, Calculations.random(1, 10) * 10000)){
-                    sleepUntil(GrandExchange::isReadyToCollect,Calculations.random(100000,200000));
-                    GrandExchange.collect();
-                }
-                if(GrandExchange.buyItem(config.ironPlatebody, 1, Calculations.random(1, 10) * 10000)){
-                    sleepUntil(GrandExchange::isReadyToCollect,Calculations.random(100000,200000));
-                    GrandExchange.collect();
-                }
-                if(GrandExchange.buyItem(config.ironPlatelegs, 1, Calculations.random(1, 10) * 10000)){
-                    sleepUntil(GrandExchange::isReadyToCollect,Calculations.random(100000,200000));
-                    GrandExchange.collect();
-                }
-                if(GrandExchange.buyItem(config.ironFullHelm, 1, Calculations.random(1, 10) * 10000)){
-                    sleepUntil(GrandExchange::isReadyToCollect,Calculations.random(100000,200000));
-                    GrandExchange.collect();
-                }
-                if(GrandExchange.buyItem(config.mithPlatebody, 1, Calculations.random(1, 10) * 10000)){
-                    sleepUntil(GrandExchange::isReadyToCollect,Calculations.random(100000,200000));
-                    GrandExchange.collect();
-                }
-                if(GrandExchange.buyItem(config.mithPlatelegs, 1, Calculations.random(1, 10) * 10000)){
-                    sleepUntil(GrandExchange::isReadyToCollect,Calculations.random(100000,200000));
-                    GrandExchange.collect();
-                }
-                if(GrandExchange.buyItem(config.mithFullHelm, 1, Calculations.random(1, 10) * 10000)){
-                    sleepUntil(GrandExchange::isReadyToCollect,Calculations.random(100000,200000));
-                    GrandExchange.collect();
-                }
-                if(GrandExchange.buyItem(config.runeChainbody, 1, Calculations.random(4, 10) * 10000)){
-                    sleepUntil(GrandExchange::isReadyToCollect,Calculations.random(100000,200000));
-                    GrandExchange.collect();
-                }
-                if(GrandExchange.buyItem(config.runePlatelegs, 1, Calculations.random(4, 10) * 10000)){
-                    sleepUntil(GrandExchange::isReadyToCollect,Calculations.random(100000,200000));
-                    GrandExchange.collect();
-                }
-                if(GrandExchange.buyItem(config.runeFullHelm, 1, Calculations.random(4, 10) * 10000)){
-                    sleepUntil(GrandExchange::isReadyToCollect,Calculations.random(100000,200000));
-                    GrandExchange.collect();
-                }
-                if(GrandExchange.buyItem(config.ironKiteshield, 1, Calculations.random(1, 10) * 10000)){
-                    sleepUntil(GrandExchange::isReadyToCollect,Calculations.random(100000,200000));
-                    GrandExchange.collect();
-                }
-                if(GrandExchange.buyItem(config.mithKiteshield, 1, Calculations.random(1, 10) * 10000)){
-                    sleepUntil(GrandExchange::isReadyToCollect,Calculations.random(100000,200000));
-                    GrandExchange.collect();
-                }
-                if(GrandExchange.buyItem(config.runeKiteshield, 1, Calculations.random(4, 10) * 10000)){
-                    sleepUntil(GrandExchange::isReadyToCollect,Calculations.random(100000,200000));
-                    GrandExchange.collect();
-                }
-                if(GrandExchange.buyItem(config.ironScimitar, 1, Calculations.random(1, 10) * 10000)){
-                    sleepUntil(GrandExchange::isReadyToCollect,Calculations.random(100000,200000));
-                    GrandExchange.collect();
-                }
-                if(GrandExchange.buyItem(config.blackScimitar, 1, Calculations.random(1, 10) * 10000)){
-                    sleepUntil(GrandExchange::isReadyToCollect,Calculations.random(100000,200000));
-                    GrandExchange.collect();
-                }
-                if(GrandExchange.buyItem(config.mithScimitar, 1, Calculations.random(1, 10) * 10000)){
-                    sleepUntil(GrandExchange::isReadyToCollect,Calculations.random(100000,200000));
-                    GrandExchange.collect();
-                }
-                if(GrandExchange.buyItem(config.addyScimitar, 1, Calculations.random(1, 10) * 10000)){
-                    sleepUntil(GrandExchange::isReadyToCollect,Calculations.random(100000,200000));
-                    GrandExchange.collect();
-                }
-                if(GrandExchange.buyItem(config.runeScimitar, 1, Calculations.random(4, 10) * 10000)){
-                    sleepUntil(GrandExchange::isReadyToCollect,Calculations.random(100000,200000));
-                    GrandExchange.collect();
-                }
-                if(GrandExchange.buyItem(config.lobster, 100, Calculations.random(5, 10) * 100)){
-                    sleepUntil(GrandExchange::isReadyToCollect,Calculations.random(100000,200000));
-                    GrandExchange.collect();
-                }
-                if(GrandExchange.buyItem(config.strPot4, 300, Calculations.random(5, 10) * 100)){
-                    sleepUntil(GrandExchange::isReadyToCollect,Calculations.random(100000,200000));
-                    GrandExchange.collect();
-                }
-                if(GrandExchange.buyItem(config.leatherGloves, 1, Calculations.random(1, 10) * 10000)){
-                    sleepUntil(GrandExchange::isReadyToCollect,Calculations.random(100000,200000));
-                    GrandExchange.collect();
-                }
-            }
+        gem.OpenGE();
 
-            if(Bank.open()){
-                if (Bank.depositAllItems()) {
-                    sleepUntil(this::invIsEmpty, Calculations.random(2000, 3000));
-                }
-            }
-        }
+        gem.BuyGearIfNecessary(config.amuletOfPower, 1, Calculations.random(5, 10) * 10000);
+        gem.BuyGearIfNecessary(config.blackCape, 1, Calculations.random(1, 10) * 10000);
+        gem.BuyGearIfNecessary(config.leatherBoots, 1, Calculations.random(1, 10) * 10000);
+        gem.BuyGearIfNecessary(config.ironPlatebody, 1, Calculations.random(1, 10) * 10000);
+        gem.BuyGearIfNecessary(config.ironPlatelegs, 1, Calculations.random(1, 10) * 10000);
+        gem.BuyGearIfNecessary(config.ironFullHelm, 1, Calculations.random(1, 10) * 10000);
+        gem.BuyGearIfNecessary(config.mithPlatebody, 1, Calculations.random(1, 10) * 10000);
+        gem.BuyGearIfNecessary(config.mithPlatelegs, 1, Calculations.random(1, 10) * 10000);
+        gem.BuyGearIfNecessary(config.mithFullHelm, 1, Calculations.random(1, 10) * 10000);
+        gem.BuyGearIfNecessary(config.runeChainbody, 1, Calculations.random(4, 10) * 10000);
+        gem.BuyGearIfNecessary(config.runePlatelegs, 1, Calculations.random(4, 10) * 10000);
+        gem.BuyGearIfNecessary(config.runeFullHelm, 1, Calculations.random(4, 10) * 10000);
+        gem.BuyGearIfNecessary(config.ironKiteshield, 1, Calculations.random(1, 10) * 10000);
+        gem.BuyGearIfNecessary(config.mithKiteshield, 1, Calculations.random(1, 10) * 10000);
+        gem.BuyGearIfNecessary(config.runeKiteshield, 1, Calculations.random(4, 10) * 10000);
+        gem.BuyGearIfNecessary(config.ironScimitar, 1, Calculations.random(1, 10) * 10000);
+        gem.BuyGearIfNecessary(config.blackScimitar, 1, Calculations.random(1, 10) * 10000);
+        gem.BuyGearIfNecessary(config.mithScimitar, 1, Calculations.random(1, 10) * 10000);
+        gem.BuyGearIfNecessary(config.addyScimitar, 1, Calculations.random(1, 10) * 10000);
+        gem.BuyGearIfNecessary(config.runeScimitar, 1, Calculations.random(4, 10) * 10000);
+        gem.BuyGearIfNecessary(config.leatherGloves, 1, Calculations.random(1, 10) * 10000);
+        gem.BuyGearIfNecessary(config.strPot4, 300, Calculations.random(5, 10) * 100);
+        gem.BuyGearIfNecessary(config.lobster, 1000, Calculations.random(5, 10) * 100);
+
+        gem.CloseGE();
+
+        // deposit everything
+        bm.OpenBank();
+        bm.DepositAllInventory();
+
+
         return 0;
     }
-
-    private boolean bankIsOpen(){
-        return Bank.isOpen();
-    }
-
-    private boolean bankIsClosed(){
-        return !Bank.isOpen();
-    }
-
-    private boolean invIsEmpty(){
-        return Inventory.isEmpty();
-    }
-
-    private boolean invIsNotEmpty(){
-        return !Inventory.isEmpty();
-    }
-
 }

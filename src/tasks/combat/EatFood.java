@@ -2,10 +2,7 @@ package tasks.combat;
 
 import methods.CombatMethods;
 import org.dreambot.api.methods.Calculations;
-import org.dreambot.api.methods.container.impl.Inventory;
 import org.dreambot.api.methods.interactive.Players;
-import org.dreambot.api.methods.skills.Skill;
-import org.dreambot.api.methods.skills.Skills;
 import tasks.AbstractTask;
 
 public class EatFood extends AbstractTask {
@@ -20,7 +17,7 @@ public class EatFood extends AbstractTask {
     public int execute() {
         log("[T] Eating food");
         cm.EatFood(config.lobster);
-        return Calculations.random(500,1000);
+        return Calculations.random(800,1400);
     }
 
 }

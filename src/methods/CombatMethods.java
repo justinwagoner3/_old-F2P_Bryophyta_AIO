@@ -5,6 +5,7 @@ import org.dreambot.api.methods.Calculations;
 import org.dreambot.api.methods.combat.Combat;
 import org.dreambot.api.methods.combat.CombatStyle;
 import org.dreambot.api.methods.container.impl.Inventory;
+import org.dreambot.api.methods.container.impl.equipment.Equipment;
 import org.dreambot.api.methods.skills.Skill;
 import org.dreambot.api.methods.skills.Skills;
 
@@ -88,41 +89,15 @@ public class CombatMethods extends AbstractMethod {
             String curItem = thisItems.get(randomIdx).name;
             if(Inventory.contains(curItem)) {
                 if(Inventory.interact(curItem,"Wear")) {
-                    sleepUntil(() -> !Inventory.contains(curItem), Calculations.random(5000, 6000));
+                    sleepUntil(() -> Equipment.contains(curItem), Calculations.random(5000, 6000));
                 }
                 else{
                     if(Inventory.interact(curItem,"Wield")) {
-                        sleepUntil(() -> !Inventory.contains(curItem), Calculations.random(5000, 6000));
+                        sleepUntil(() -> Equipment.contains(curItem), Calculations.random(5000, 6000));
                     }
                 }
             }
             thisItems.remove(randomIdx);
-        }
-
-        // double check all gear has been grabbed
-        for (int i = 0; i < origItems.size(); i++) {
-            String curItem = origItems.get(i).name;
-            if(Inventory.interact(curItem,"Wear")) {
-                sleepUntil(() -> !Inventory.contains(curItem), Calculations.random(5000, 6000));
-            }
-            else{
-                if(Inventory.interact(curItem,"Wield")) {
-                    sleepUntil(() -> !Inventory.contains(curItem), Calculations.random(5000, 6000));
-                }
-            }
-        }
-
-        // triple check all gear has been grabbed
-        for (int i = 0; i < origItems.size(); i++) {
-            String curItem = origItems.get(i).name;
-            if(Inventory.interact(curItem,"Wear")) {
-                sleepUntil(() -> !Inventory.contains(curItem), Calculations.random(5000, 6000));
-            }
-            else{
-                if(Inventory.interact(curItem,"Wield")) {
-                    sleepUntil(() -> !Inventory.contains(curItem), Calculations.random(5000, 6000));
-                }
-            }
         }
     }
 }

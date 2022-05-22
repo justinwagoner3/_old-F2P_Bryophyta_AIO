@@ -22,21 +22,18 @@ public class UpgradeScimitar extends AbstractTask {
             log("Black");
             if (Inventory.interact(config.blackScimitar, "Wield")) {
                 sleepUntil(() -> Inventory.contains(config.ironScimitar), 4000);
-                Inventory.drop(config.ironScimitar);
             }
         }
         if(Skills.getRealLevel(Skill.ATTACK) == 20) {
             log("Mith");
             if (Inventory.interact(config.mithScimitar, "Wield")) {
                 sleepUntil(() -> Inventory.contains(config.blackScimitar), 4000);
-                Inventory.drop(config.blackScimitar);
             }
         }
         if(Skills.getRealLevel(Skill.ATTACK) == 30) {
             log("Addy");
             if (Inventory.interact(config.addyScimitar, "Wield")) {
                 sleepUntil(() -> Inventory.contains(config.mithScimitar), 4000);
-                Inventory.drop(config.mithScimitar);
             }
         }
         if(Skills.getRealLevel(Skill.ATTACK) == 40) {

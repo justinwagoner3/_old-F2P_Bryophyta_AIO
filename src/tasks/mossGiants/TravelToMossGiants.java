@@ -20,12 +20,7 @@ public class TravelToMossGiants extends AbstractTask {
 
     public int execute() {
         log("[T] Traveling to moss giants");
-        if(getLocalPlayer().getY() > config.edgevilleWildernessDitchNorthArea.getY()){
-            wm.Walk(config.mossGiantWildernessArea, "Moss Giants already in wildy");
-        }
-        else {
-            wm.WalkToWildy(config.mossGiantWildernessArea, "Moss Giants through ditch");
-        }
+        wm.WalkToWildy(config.mossGiantWildernessArea, "Moss Giants through ditch");
         return 0;
     }
 

@@ -16,6 +16,7 @@ import static org.dreambot.api.methods.MethodProvider.*;
 
 public class WalkingMethods extends AbstractMethod {
 
+    /*
     // TODO - might want to set it to return bool to maybe be used for double checking
     public void Walk(Area destination, String location){
         log("[m] Walking to " + location);
@@ -26,6 +27,22 @@ public class WalkingMethods extends AbstractMethod {
                 Walking.walk(destination);
             }
         }
+    }
+    */
+
+    public void Walk(Area destination, String location){
+        log("[m] Walking to " + location);
+
+        // TODO- play around with 6 arg
+            if (Walking.shouldWalk(Calculations.random(6))) {
+                log("thinks should walk");
+                Walking.walk(destination);
+            }
+            else{
+                log("left the if statement... sleeping");
+                sleep(1000);
+            }
+
     }
 
     public boolean WalkThroughFeroxEnclave(){
@@ -58,18 +75,24 @@ public class WalkingMethods extends AbstractMethod {
 
     public void WalkToWildy(Area destination, String location){
 
-        while(!config.edgevilleWildernessDitchNorthArea.contains(getLocalPlayer().getTile())) {
-            Walk(config.edgevilleWildernessDitchSouthArea, "Edgevile Wildy Ditch");
-            GameObject wildyDitch = GameObjects.closest(object -> object.getName() != null && object.getID() == 23271);
-            if(wildyDitch != null && wildyDitch.isOnScreen()){
-                log("wildy ditch not null");
-                if(wildyDitch.interact("Cross")){
-                    sleepUntil(() -> Widgets.getWidgetChild(475, 11, 1) != null || config.edgevilleWildernessDitchNorthArea.contains(getLocalPlayer().getTile()), Calculations.random(5000,8000));
-                    CrossDitchInteraction();
+        // if already in Wildy, no need to jump the barrier
+        if(getLocalPlayer().getY() > config.edgevilleWildernessDitchNorthArea.getY()){
+            Walk(destination,location);
+        }
+        else{
+            while(!config.edgevilleWildernessDitchNorthArea.contains(getLocalPlayer().getTile())) {
+                Walk(config.edgevilleWildernessDitchSouthArea, "Edgevile Wildy Ditch");
+                GameObject wildyDitch = GameObjects.closest(object -> object.getName() != null && object.getID() == 23271);
+                if(wildyDitch != null && wildyDitch.isOnScreen()){
+                    log("wildy ditch not null");
+                    if(wildyDitch.interact("Cross")){
+                        sleepUntil(() -> Widgets.getWidgetChild(475, 11, 1) != null || config.edgevilleWildernessDitchNorthArea.contains(getLocalPlayer().getTile()), Calculations.random(5000,8000));
+                        CrossDitchInteraction();
+                    }
                 }
             }
+            Walk(destination,location);
         }
-        Walk(destination,location);
     }
 
     public void WalkFromWildy(Area destination, String location) {

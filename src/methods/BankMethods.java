@@ -4,6 +4,7 @@ import dataStructures.nameQuantity;
 import org.dreambot.api.methods.Calculations;
 import org.dreambot.api.methods.container.impl.Inventory;
 import org.dreambot.api.methods.container.impl.bank.Bank;
+import org.dreambot.api.methods.container.impl.equipment.Equipment;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -79,8 +80,8 @@ public class BankMethods extends AbstractMethod {
         }
     }
 
-    public void DepositInventory(){
-        log("[m] Deposit Inventory");
+    public void DepositAllInventory(){
+        log("[m] Deposit All Inventory");
         while(!Inventory.isEmpty()){
             if(Bank.depositAllItems()){
                 sleepUntil(() -> Inventory.isEmpty(),Calculations.random(2000,3000));
@@ -88,5 +89,29 @@ public class BankMethods extends AbstractMethod {
         }
     }
 
+    public void DepositAllGear(){
+        log("[m] Deposit All Gear");
+        while(!Equipment.isEmpty()){
+            if(Bank.depositAllEquipment()){
+                sleepUntil(() -> Equipment.isEmpty(),Calculations.random(2000,3000));
+            }
+        }
+    }
 
+    public void WithdrawOnlyCoins(){
+        OpenBank();
+        if(Inventory.onlyContains(config.coins)){
+            CloseBank();
+        }
+        while(!Inventory.onlyContains(config.coins)) {
+            if (!Inventory.isEmpty()) {
+                DepositAllInventory();
+            }
+            if (Inventory.isEmpty()) {
+                if (Bank.withdrawAll(config.coins)) {
+                    sleepUntil(() -> !Inventory.isEmpty(), Calculations.random(2000, 3000));
+                }
+            }
+        }
+    }
 }

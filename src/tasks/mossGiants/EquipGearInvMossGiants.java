@@ -19,10 +19,10 @@ public class EquipGearInvMossGiants extends AbstractTask {
 
     @Override
     public boolean accept() {
-        return Skills.getRealLevel(Skill.ATTACK) == 40
-                && Skills.getRealLevel(Skill.STRENGTH) == 40
-                && Skills.getRealLevel(Skill.DEFENCE) == 40
-                && !Equipment.containsAll(config.runeFullHelm,config.runeKiteshield,config.runeChainbody,config.runePlatelegs);
+        return Skills.getRealLevel(Skill.ATTACK) >= 40
+                && Skills.getRealLevel(Skill.STRENGTH) >= 40
+                && Skills.getRealLevel(Skill.DEFENCE) >= 40
+                && !Equipment.containsAll(config.runeScimitar,config.runeFullHelm,config.runeKiteshield,config.runeChainbody,config.runePlatelegs,config.amuletOfPower,config.leatherBoots,config.leatherBoots,config.blackCape);
         // TODO - might want use equipnent. to put gear on too
     }
 
@@ -33,18 +33,23 @@ public class EquipGearInvMossGiants extends AbstractTask {
         config.setCurMonster(config.mossGiant);
 
         // Travel to bank
-        wm.Walk(config.edgevilleBank,"Edgeville bank");
+        wm.WalkToWildy(config.feroxEnclaveBank,"Ferox Enclave bank");
 
         // Deposit everything
         bm.OpenBank();
-        bm.DepositInventory();
+        bm.DepositAllInventory();
 
         // Withdraw new gear
         List<nameQuantity> gear = new ArrayList<>();
+        gear.add(new nameQuantity(config.amuletOfPower,1));
+        gear.add(new nameQuantity(config.blackCape,1));
+        gear.add(new nameQuantity(config.leatherBoots,1));
+        gear.add(new nameQuantity(config.leatherGloves,1));
         gear.add(new nameQuantity(config.runeFullHelm,1));
         gear.add(new nameQuantity(config.runeChainbody,1));
         gear.add(new nameQuantity(config.runeKiteshield,1));
         gear.add(new nameQuantity(config.runePlatelegs,1));
+        gear.add(new nameQuantity(config.runeScimitar,1));
 
         bm.WithdrawItemsRandom(gear);
         bm.CloseBank();
@@ -59,7 +64,7 @@ public class EquipGearInvMossGiants extends AbstractTask {
 
 
         bm.OpenBank();
-        bm.DepositInventory();
+        bm.DepositAllInventory();
 
 
         bm.OpenBank();

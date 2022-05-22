@@ -6,7 +6,10 @@ import methods.CombatMethods;
 import org.dreambot.api.methods.Calculations;
 import org.dreambot.api.methods.container.impl.Inventory;
 import org.dreambot.api.methods.container.impl.bank.Bank;
+import org.dreambot.api.methods.container.impl.equipment.Equipment;
 import org.dreambot.api.methods.interactive.Players;
+import org.dreambot.api.methods.skills.Skill;
+import org.dreambot.api.methods.skills.Skills;
 import tasks.AbstractTask;
 
 import java.util.ArrayList;
@@ -20,7 +23,11 @@ public class EquipGearInvRats extends AbstractTask {
     // TODO - set this to all equipment
     @Override
     public boolean accept() {
-        return config.grandExchangeArea.contains(Players.localPlayer()) && Bank.contains("Rune chainbody") && !Inventory.contains("Lobster");
+        return ((Skills.getRealLevel(Skill.ATTACK) >= 1 && Skills.getRealLevel(Skill.ATTACK) < 20) // attack between 20-39
+                || (Skills.getRealLevel(Skill.STRENGTH) >= 1 && Skills.getRealLevel(Skill.STRENGTH) < 20) // attack between 20-39
+                || (Skills.getRealLevel(Skill.DEFENCE) >= 1 && Skills.getRealLevel(Skill.DEFENCE) < 20)) // attack between 20-39
+
+                && !Equipment.containsAll(config.ironFullHelm,config.ironKiteshield,config.ironPlatebody,config.ironPlatelegs); // not all wearing the right equipment
     }
 
     @Override

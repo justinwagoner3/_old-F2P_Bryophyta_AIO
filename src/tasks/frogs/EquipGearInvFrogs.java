@@ -20,10 +20,11 @@ public class EquipGearInvFrogs extends AbstractTask {
 
     @Override
     public boolean accept() {
-        return Skills.getRealLevel(Skill.ATTACK) == 20
-                && Skills.getRealLevel(Skill.STRENGTH) == 20
-                && Skills.getRealLevel(Skill.DEFENCE) == 20
-                && !Equipment.containsAll(config.mithFullHelm,config.mithKiteshield,config.mithPlatebody,config.mithPlatelegs);
+        return ((Skills.getRealLevel(Skill.ATTACK) >= 20 && Skills.getRealLevel(Skill.ATTACK) < 40) // attack between 20-39
+                || (Skills.getRealLevel(Skill.STRENGTH) >= 20 && Skills.getRealLevel(Skill.STRENGTH) < 40) // attack between 20-39
+                || (Skills.getRealLevel(Skill.DEFENCE) >= 20 && Skills.getRealLevel(Skill.DEFENCE) < 40)) // attack between 20-39
+
+                && !Equipment.containsAll(config.mithFullHelm,config.mithKiteshield,config.mithPlatebody,config.mithPlatelegs); // not all wearing the right equipment
         // TODO - might want use equipnent. to put gear on too
     }
 
@@ -38,7 +39,7 @@ public class EquipGearInvFrogs extends AbstractTask {
 
         // Deposit everything
         bm.OpenBank();
-        bm.DepositInventory();
+        bm.DepositAllInventory();
 
         // Withdraw new gear
         List<nameQuantity> gear = new ArrayList<>();
@@ -62,7 +63,7 @@ public class EquipGearInvFrogs extends AbstractTask {
 
 
         bm.OpenBank();
-        bm.DepositInventory();
+        bm.DepositAllInventory();
 
 
         bm.OpenBank();

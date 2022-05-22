@@ -4,6 +4,7 @@ import org.dreambot.api.methods.combat.CombatStyle;
 import org.dreambot.api.methods.map.Area;
 import org.dreambot.api.methods.skills.Skill;
 import org.dreambot.api.methods.skills.Skills;
+import org.dreambot.api.utilities.Timer;
 
 public class Config {
     // instantiate the class
@@ -12,9 +13,9 @@ public class Config {
     // constructor
     private Config() {}
 
+    // time
+    public Timer timer = new Timer();
 
-
-    // enums
 
     // states (or config)
     private int startAttLvl = Skills.getRealLevel(Skill.ATTACK);
@@ -27,6 +28,7 @@ public class Config {
     private boolean initBankOpened = false;
 
     private boolean isDistracted = false;
+    public boolean justLoggedOut = false;
 
     private String curMonster = "Giant rat";
 
@@ -37,11 +39,18 @@ public class Config {
     private boolean majorLevelJustReached = false;
     private CombatStyle lastMajorLevelReached = CombatStyle.ATTACK;
 
+    private String[] gearList = {this.amuletOfPower,this.blackCape,this.leatherBoots,this.leatherGloves,this.ironPlatebody,this.ironPlatelegs,this.ironFullHelm,this.mithPlatebody,
+            this.mithPlatelegs,this.mithFullHelm,this.runeChainbody,this.runePlatelegs,this.runeFullHelm,this.ironKiteshield,this.mithKiteshield,
+            this.runeKiteshield,this.blackSqShield,this.mithSword,this.steelKiteshield,this.ironScimitar,this.blackScimitar,this.mithScimitar,this.addyScimitar,this.runeScimitar};
+
+
     // TODO - sloppy
     private String[] lootItems = {this.lawRune,this.cosmicRune,this.natureRune,this.deathRune,this.mossyKey,this.uncutRuby,
                                     this.blackSqShield,this.mithSword,this.steelKiteshield,this.steelArrow,this.chaosRune};
     private int[] lootItemsPrices = {this.lawRunePrice,this.cosmicRunePrice,this.natureRunePrice,this.deathRunePrice,this.mossyKeyPrice,this.uncutRubyPrice,
             this.blackSqShieldPrice,this.mithSwordPrice,this.steelKiteshieldPrice,this.steelArrowPrice,this.chaosRunePrice};
+
+
 
     // TODO - total prices, not price per
     // prices
@@ -63,7 +72,7 @@ public class Config {
     // locations
     public final Area feroxEnclaveInteriorNorth = new Area(3133,3633,3135,3639);
     public final Area feroxEnclaveExteriorNorth = new Area(3133,3640,3135,3645);
-    public final Area feronEnclaveBank = new Area(3132,3627,3137,3630);
+    public final Area feroxEnclaveBank = new Area(3132,3627,3137,3630);
     public final Area grandExchangeArea = new Area(3153, 3474, 3177, 3504);
     public final Area lumbridgeTeleArea = new Area(3218,3214,3226,3222);
     public final Area largeGiantRatArea = new Area(3162,3158,3229,3220);
@@ -257,5 +266,13 @@ public class Config {
 
     public void setNextDrinkPotionBoostedRealDiff(int nextDrinkPotionBoostedRealDiff) {
         this.nextDrinkPotionBoostedRealDiff = nextDrinkPotionBoostedRealDiff;
+    }
+
+    public String[] getGearList() {
+        return gearList;
+    }
+
+    public void setGearList(String[] gearList) {
+        this.gearList = gearList;
     }
 }

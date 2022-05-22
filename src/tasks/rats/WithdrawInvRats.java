@@ -47,7 +47,7 @@ public class WithdrawInvRats extends AbstractTask {
 
         // open bank, deposit everything
         bm.OpenBank();
-        bm.DepositInventory();
+        bm.DepositAllInventory();
 
 
         // withdraw items
