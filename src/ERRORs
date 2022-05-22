@@ -1,0 +1,10 @@
+ * trying to walk to wildy ditch. query returning true when too far away
+
+
+ * Sometimes wants to double eat and does it too quickly
+ * ended up north of the of the swamp
+  * need to limit the boundary
+ * standing south of the house attempted to tele home to travel to rats
+ * failed to walk to lumbridge bank from swamp, ran west then east repeated in the northwest part of swamp
+ * Picking up chaos runes is not working
+ * When attacking a monster, if it goes to loot, should return to attacking same monster

@@ -1,0 +1,21 @@
+ * TOP TODOs:
+    * HopWorlds
+    * evade PKer
+
+ * Walk:
+    * have to manually enable walking out of enclave right now
+    * having the walk in a while loop will make it impossible to eat
+ * Loot:
+    * add a check if inv is full to still pick up stackables
+        * itemToPickUp.getItem().isStackable()
+    * could probably just loot everything over a certain getItem.getValue()
+ * If running out of potions before food, should stay and fight insteaf of drink potion and run right to bank
+ * Make sure f2p world is selected before logging in
+ * buy gear:
+    * check if i have the item in bank first before buying
+    * set activate condition to activate if any of the gear is missing
+    * always buy 1st slot, 2nd slot, 1st slot, 2nd slot... need it randomized
+ * could randomize even more with global variables that change the min max bounds of random calcs every run
+ * could implement a task that checks if in combat, then constantly query the next monster so next attack monsteer happens quicker
+ * add a trade checker
+    * had someone randomly trade me gear probably trying to catch bots
