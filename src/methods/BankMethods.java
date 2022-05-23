@@ -4,6 +4,7 @@ import dataStructures.nameQuantity;
 import org.dreambot.api.methods.Calculations;
 import org.dreambot.api.methods.container.impl.Inventory;
 import org.dreambot.api.methods.container.impl.bank.Bank;
+import org.dreambot.api.methods.container.impl.bank.BankMode;
 import org.dreambot.api.methods.container.impl.equipment.Equipment;
 
 import java.util.ArrayList;
@@ -15,8 +16,8 @@ import static org.dreambot.api.methods.MethodProvider.sleepUntil;
 public class BankMethods extends AbstractMethod {
 
     // TODO - the last withdraw should be a withdraw all
-    public void WithdrawItemsRandom(List<nameQuantity> items) {
-        log("[m] Withdrawing inv at random");
+    public void WithdrawXItemsRandom(List<nameQuantity> items) {
+        log("[m] Withdrawing x inv at random");
 
         // save the original list so we can double check
         List<nameQuantity> origItems = new ArrayList<>(items);
@@ -39,26 +40,25 @@ public class BankMethods extends AbstractMethod {
             thisItems.remove(randomIdx);
         }
 
-        // double check all gear has been grabbed
-        for (int i = 0; i < origItems.size(); i++) {
-            String curItem = origItems.get(i).name;
-            int quantity = origItems.get(i).quantity;
-            if (!Inventory.contains(curItem)) {
-                if(Bank.withdraw(curItem,quantity)) {
-                    sleepUntil(() -> Inventory.contains(curItem), Calculations.random(5000, 6000));
-                }
-            }
+    }
+
+    public void WithdrawAllItemsNotedRandom(String[] items){
+        log("[m] Withdrawing x inv at random");
+
+        List<String> thisItems = new ArrayList<>();
+        for(String item : items){
+            thisItems.add(item);
         }
 
-        // triple check all gear has been grabbed
-        for (int i = 0; i < origItems.size(); i++) {
-            String curItem = origItems.get(i).name;
-            int quantity = origItems.get(i).quantity;
-            if (!Inventory.contains(curItem)) {
-                if(Bank.withdraw(curItem,quantity)) {
-                    sleepUntil(() -> Inventory.contains(curItem), Calculations.random(5000, 6000));
-                }
+        // randomly grab gear
+        for (int i = 0; i < thisItems.size(); i = 0) {
+            int randomIdx = 0;
+            if(thisItems.size() != 1) {
+                randomIdx = Calculations.random(0, thisItems.size());
             }
+            String curItem = thisItems.get(i);
+            WithAllItemNoted(curItem);
+            thisItems.remove(randomIdx);
         }
     }
 
@@ -114,4 +114,35 @@ public class BankMethods extends AbstractMethod {
             }
         }
     }
+
+    public void WithXItem(String name, int quantity){
+        if(!Inventory.contains(name)) {
+            if(Bank.withdraw(name,quantity)) {
+                sleepUntil(() -> Inventory.contains(name), Calculations.random(5000, 6000));
+            }
+        }
+    }
+
+    public void WithAllItem(String name){
+        if(!Inventory.contains(name)) {
+            if(Bank.setWithdrawMode(BankMode.ITEM)) {
+                if (Bank.withdrawAll(name)) {
+                    sleepUntil(() -> Inventory.contains(name), Calculations.random(5000, 6000));
+                }
+            }
+        }
+    }
+
+    public void WithAllItemNoted(String name){
+        while(!Inventory.contains(name)) {
+            if(Bank.setWithdrawMode(BankMode.NOTE)) {
+                if (Bank.withdrawAll(name)) {
+                    sleepUntil(() -> Inventory.contains(name), Calculations.random(5000, 6000));
+                }
+            }
+        }
+    }
+
+
+
 }

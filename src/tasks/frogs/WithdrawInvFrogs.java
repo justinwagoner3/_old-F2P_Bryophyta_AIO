@@ -26,6 +26,7 @@ public class WithdrawInvFrogs extends AbstractTask {
     public int execute() {
 
         log("[T] Withdrawing inv Frogs");
+        config.setStatus("Withdrawing inv Frogs");
         // create list to withdraw
         // TODO - grab mithril armor, and in SwitchToFrogs maybe check if necessary to go back to bank or not
         List<nameQuantity> inv = new ArrayList<>();
@@ -51,7 +52,7 @@ public class WithdrawInvFrogs extends AbstractTask {
 
 
         // withdraw items
-        bm.WithdrawItemsRandom(inv);
+        bm.WithdrawXItemsRandom(inv);
         bm.CloseBank();
         return Calculations.random(500,900);
     }

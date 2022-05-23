@@ -10,13 +10,15 @@ public class Loot extends AbstractTask {
 
     @Override
     public boolean accept() {
-        return lm.ShouldLootMultipleItemsExceptSingleChaos(config.getLootItems())
-            && (!Inventory.isFull() || lm.itemToPickUp.getName().equals(config.mossyKey));
+        return lm.ShouldLootMultipleItemsExceptSingleChaos(config.getLootItemsWithBones())
+            && (!Inventory.isFull() || lm.itemToPickUp.getName().equals(config.mossyKey))
+            && !getLocalPlayer().isInCombat();
     }
 
     @Override
     public int execute() {
         log("[T] Loot");
+        config.setStatus("Looting " + lm.itemToPickUp.getName());
         lm.EatIfNecessary(lm.itemToPickUp,config.mossyKey);
         lm.PickLootUp(lm.itemToPickUp);
         return 0;

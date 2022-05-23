@@ -22,6 +22,7 @@ public class TravelToRats extends AbstractTask {
     @Override
     public int execute() {
         log("[T] Traveling to rats");
+        config.setStatus("Traveling to rats");
         // teleport home, if far away from home
         // TODO - there's a todo about home tele in TravelToLumBank, add a check in the method about no need to teleport if already close enough
         if(!config.lumbridgeAndSwampArea.contains(Players.localPlayer()) && !config.lumbridgeBank.contains(Players.localPlayer()) && !config.lumbridgeSecondFloor.contains(Players.localPlayer())) {

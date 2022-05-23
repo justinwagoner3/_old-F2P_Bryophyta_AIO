@@ -4,10 +4,8 @@ import dataStructures.nameQuantity;
 import methods.BankMethods;
 import methods.CombatMethods;
 import org.dreambot.api.methods.Calculations;
-import org.dreambot.api.methods.container.impl.Inventory;
 import org.dreambot.api.methods.container.impl.bank.Bank;
 import org.dreambot.api.methods.container.impl.equipment.Equipment;
-import org.dreambot.api.methods.interactive.Players;
 import org.dreambot.api.methods.skills.Skill;
 import org.dreambot.api.methods.skills.Skills;
 import tasks.AbstractTask;
@@ -48,7 +46,8 @@ public class EquipGearInvRats extends AbstractTask {
 
         // withdraw all gear
         bm.OpenBank();
-        bm.WithdrawItemsRandom(gear);
+        bm.DepositAllInventory();
+        bm.WithdrawXItemsRandom(gear);
         bm.CloseBank();
 
         // equip the gear
@@ -65,7 +64,7 @@ public class EquipGearInvRats extends AbstractTask {
         // TODO - use methods
         if(Bank.isOpen() || Bank.open()) {
             sleepUntil(Bank::isOpen, Calculations.random(2000, 3000));
-            bm.WithdrawItemsRandom(inv);
+            bm.WithdrawXItemsRandom(inv);
             if(Bank.close()){
                 sleepUntil(this::bankIsClosed,Calculations.random(2000,3000));
             }

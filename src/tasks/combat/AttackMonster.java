@@ -18,6 +18,7 @@ public class AttackMonster extends AbstractTask {
     @Override
     public int execute() {
         log("[T] Attacking monster... ");
+        config.setStatus("Attacking " + config.getCurMonster());
         String monster = config.getCurMonster();
         NPC currentNpc = NPCs.closest(npc -> npc != null && npc.getName() != null && npc.getName().equals(monster) && !npc.isInCombat() && npc.getInteractingCharacter() == null);
         if(currentNpc != null) { //does the npc exist?

@@ -18,6 +18,7 @@ public class Config {
 
 
     // states (or config)
+    private String status = "Initializing";
     private int startAttLvl = Skills.getRealLevel(Skill.ATTACK);
     private int startStrLvl = Skills.getRealLevel(Skill.STRENGTH);
     private int startDefLvl = Skills.getRealLevel(Skill.DEFENCE);
@@ -45,18 +46,23 @@ public class Config {
 
     private String[] gearList = {this.amuletOfPower,this.blackCape,this.leatherBoots,this.leatherGloves,this.ironPlatebody,this.ironPlatelegs,this.ironFullHelm,this.mithPlatebody,
             this.mithPlatelegs,this.mithFullHelm,this.runeChainbody,this.runePlatelegs,this.runeFullHelm,this.ironKiteshield,this.mithKiteshield,
-            this.runeKiteshield,this.blackSqShield,this.mithSword,this.steelKiteshield,this.ironScimitar,this.blackScimitar,this.mithScimitar,this.addyScimitar,this.runeScimitar};
+            this.runeKiteshield,this.ironScimitar,this.blackScimitar,this.mithScimitar,this.addyScimitar,this.runeScimitar};
 
 
     // TODO - sloppy
-    private String[] lootItems = {this.lawRune,this.cosmicRune,this.natureRune,this.deathRune,this.mossyKey,this.uncutRuby,
+    private String[] lootItemsNoBones = {this.lawRune,this.cosmicRune,this.natureRune,this.deathRune,this.mossyKey,this.uncutRuby,
                                     this.blackSqShield,this.mithSword,this.steelKiteshield,this.steelArrow,this.chaosRune};
-    private int[] lootItemsPrices = {this.lawRunePrice,this.cosmicRunePrice,this.natureRunePrice,this.deathRunePrice,this.mossyKeyPrice,this.uncutRubyPrice,
+    private int[] lootItemsPricesNoBones = {this.lawRunePrice,this.cosmicRunePrice,this.natureRunePrice,this.deathRunePrice,this.mossyKeyPrice,this.uncutRubyPrice,
             this.blackSqShieldPrice,this.mithSwordPrice,this.steelKiteshieldPrice,this.steelArrowPrice,this.chaosRunePrice};
 
+    private String[] lootItemsWithBones = {this.lawRune,this.cosmicRune,this.natureRune,this.deathRune,this.mossyKey,this.uncutRuby,
+            this.blackSqShield,this.mithSword,this.steelKiteshield,this.steelArrow,this.chaosRune,this.bigBones};
+
+    private int[] lootItemsPricesWithBones = {this.lawRunePrice,this.cosmicRunePrice,this.natureRunePrice,this.deathRunePrice,this.mossyKeyPrice,this.uncutRubyPrice,
+            this.blackSqShieldPrice,this.mithSwordPrice,this.steelKiteshieldPrice,this.steelArrowPrice,this.chaosRunePrice,0};
 
     // chat messages
-    public final String teleBlockedString = "";
+    public final String teleBlockedString = "tele";
 
 
     // TODO - total prices, not price per
@@ -243,20 +249,20 @@ public class Config {
         this.curDefLvl = curDefLvl;
     }
 
-    public String[] getLootItems() {
-        return lootItems;
+    public String[] getLootItemsNoBones() {
+        return lootItemsNoBones;
     }
 
-    public void setLootItems(String[] lootItems) {
-        this.lootItems = lootItems;
+    public void setLootItemsNoBones(String[] lootItemsNoBones) {
+        this.lootItemsNoBones = lootItemsNoBones;
     }
 
-    public int[] getLootItemsPrices() {
-        return lootItemsPrices;
+    public int[] getLootItemsPricesNoBones() {
+        return lootItemsPricesNoBones;
     }
 
-    public void setLootItemsPrices(int[] lootItemsPrices) {
-        this.lootItemsPrices = lootItemsPrices;
+    public void setLootItemsPricesNoBones(int[] lootItemsPricesNoBones) {
+        this.lootItemsPricesNoBones = lootItemsPricesNoBones;
     }
 
     public int getNextRunEnergyPercentage() {
@@ -289,5 +295,29 @@ public class Config {
 
     public void setTeleBlocked(boolean teleBlocked) {
         this.teleBlocked = teleBlocked;
+    }
+
+    public String[] getLootItemsWithBones() {
+        return lootItemsWithBones;
+    }
+
+    public void setLootItemsWithBones(String[] lootItemsWithBones) {
+        this.lootItemsWithBones = lootItemsWithBones;
+    }
+
+    public int[] getLootItemsPricesWithBones() {
+        return lootItemsPricesWithBones;
+    }
+
+    public void setLootItemsPricesWithBones(int[] lootItemsPricesWithBones) {
+        this.lootItemsPricesWithBones = lootItemsPricesWithBones;
+    }
+
+    public String getStatus() {
+        return status;
+    }
+
+    public void setStatus(String status) {
+        this.status = status;
     }
 }

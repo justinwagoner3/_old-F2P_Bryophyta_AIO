@@ -2,6 +2,9 @@
     * HopWorlds
     * evade PKer
 
+ * Fixing static prices
+    * `(Inventory.count("item") + Bank.count("item")) * LivePrices.get("item"))` might work
+
  * The walking path out of ferox enclave is pretty bot like
  * Walk:
     * have to manually enable walking out of enclave right now

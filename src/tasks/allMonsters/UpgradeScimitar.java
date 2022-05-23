@@ -18,6 +18,7 @@ public class UpgradeScimitar extends AbstractTask {
     // TODO - turn weilding into a method
     public int execute() {
         log("[T] Upgrading scimitar too...");
+        config.setStatus("Upgrading scimitar");
         if(Skills.getRealLevel(Skill.ATTACK) == 10) {
             log("Black");
             if (Inventory.interact(config.blackScimitar, "Wield")) {

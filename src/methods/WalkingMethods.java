@@ -138,4 +138,12 @@ public class WalkingMethods extends AbstractMethod {
             return false;
         }
     }
+
+    public int getWildernessLevel() {
+        WidgetChild wildernessLevelWidget = Widgets.getWidgetChild(90, 46);
+        if (wildernessLevelWidget != null) {
+            return Integer.valueOf(wildernessLevelWidget.getText().replaceAll("\\D+",""));
+        }
+        return 0;
+    }
 }

@@ -21,6 +21,7 @@ public class TravelToLumbridgeBank extends AbstractTask {
     @Override
     public int execute() {
         log("[T] Traveling to Lumbridge bank");
+        config.setStatus("Traveling to Lumbridge bank");
         // teleport home, if far away from home
         // TODO - add in potential tele home instead of running
         wm.Walk(config.lumbridgeBank, "Lumbridge bank");

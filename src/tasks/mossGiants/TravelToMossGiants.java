@@ -20,6 +20,7 @@ public class TravelToMossGiants extends AbstractTask {
 
     public int execute() {
         log("[T] Traveling to moss giants");
+        config.setStatus("Traveling to moss giants");
         wm.WalkToWildy(config.mossGiantWildernessArea, "Moss Giants");
         return 0;
     }

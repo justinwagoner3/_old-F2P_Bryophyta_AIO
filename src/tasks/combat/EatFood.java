@@ -16,6 +16,7 @@ public class EatFood extends AbstractTask {
     @Override
     public int execute() {
         log("[T] Eating food");
+        config.setStatus("Eating " + config.lobster);
         cm.EatFood(config.lobster);
         return Calculations.random(800,1400);
     }

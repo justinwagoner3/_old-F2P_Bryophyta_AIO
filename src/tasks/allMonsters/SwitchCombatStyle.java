@@ -14,7 +14,7 @@ public class SwitchCombatStyle extends AbstractTask {
 
     private CombatMethods cm = new CombatMethods();
 
-    // TODO- adjust so it always checks, based on COMBAT LEVEL, then no need for major level i don't think (double check)
+    // TODO- adjust so it always checks, based on all different level combinations,
     @Override
     public boolean accept() {
         return config.isMajorLevelJustReached() // increments of 10
@@ -24,6 +24,7 @@ public class SwitchCombatStyle extends AbstractTask {
     @Override
     public int execute() {
         log("[T] Switch Combat Style");
+        config.setStatus("Switch Combat Style");
         if(Skills.getRealLevel(Skill.STRENGTH) % 10 != 0 || Skills.getRealLevel(Skill.STRENGTH) > 40) {
             cm.SwitchCombatStyle(CombatStyle.STRENGTH);
         }

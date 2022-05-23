@@ -29,6 +29,7 @@ public class EquipGearInvMossGiants extends AbstractTask {
     @Override
     public int execute() {
         log("[T] Equipping gear and inv moss giants");
+        config.setStatus("Equipping gear and inv moss giants");
         // set frogs as monster
         config.setCurMonster(config.mossGiant);
 
@@ -51,7 +52,7 @@ public class EquipGearInvMossGiants extends AbstractTask {
         gear.add(new nameQuantity(config.runePlatelegs,1));
         gear.add(new nameQuantity(config.runeScimitar,1));
 
-        bm.WithdrawItemsRandom(gear);
+        bm.WithdrawXItemsRandom(gear);
         bm.CloseBank();
 
         // Equip new gear
@@ -68,7 +69,7 @@ public class EquipGearInvMossGiants extends AbstractTask {
 
 
         bm.OpenBank();
-        bm.WithdrawItemsRandom(inv);
+        bm.WithdrawXItemsRandom(inv);
         bm.CloseBank();
 
         return 0;

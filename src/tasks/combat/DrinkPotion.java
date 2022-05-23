@@ -22,6 +22,7 @@ public class DrinkPotion extends AbstractTask {
     @Override
     public int execute() {
         log("[T] Drinking potion at " + Skills.getBoostedLevels(Skill.STRENGTH) + "/" + Skills.getRealLevel(Skill.STRENGTH));
+        config.setStatus("Drinking potion at " + Skills.getBoostedLevels(Skill.STRENGTH) + "/" + Skills.getRealLevel(Skill.STRENGTH));
         cm.DrinkPotion(config.strPot1,config.strPot2,config.strPot3,config.strPot4);
         if(Skills.getRealLevel(Skill.STRENGTH) >= 30){
             config.setNextDrinkPotionBoostedRealDiff(Calculations.random(0,3));

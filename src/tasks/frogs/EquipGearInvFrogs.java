@@ -21,8 +21,8 @@ public class EquipGearInvFrogs extends AbstractTask {
     @Override
     public boolean accept() {
         return ((Skills.getRealLevel(Skill.ATTACK) >= 20 && Skills.getRealLevel(Skill.ATTACK) < 40) // attack between 20-39
-                || (Skills.getRealLevel(Skill.STRENGTH) >= 20 && Skills.getRealLevel(Skill.STRENGTH) < 40) // attack between 20-39
-                || (Skills.getRealLevel(Skill.DEFENCE) >= 20 && Skills.getRealLevel(Skill.DEFENCE) < 40)) // attack between 20-39
+                && (Skills.getRealLevel(Skill.STRENGTH) >= 20 && Skills.getRealLevel(Skill.STRENGTH) < 40) // attack between 20-39
+                && (Skills.getRealLevel(Skill.DEFENCE) >= 20 && Skills.getRealLevel(Skill.DEFENCE) < 40)) // attack between 20-39
 
                 && !Equipment.containsAll(config.mithFullHelm,config.mithKiteshield,config.mithPlatebody,config.mithPlatelegs); // not all wearing the right equipment
         // TODO - might want use equipnent. to put gear on too
@@ -31,6 +31,7 @@ public class EquipGearInvFrogs extends AbstractTask {
     @Override
     public int execute() {
         log("[T] Equipping gear and inv frogs");
+        config.setStatus("Equipping gear and inv frogs");
         // set frogs as monster
         config.setCurMonster(config.giantFrog);
 
@@ -48,7 +49,7 @@ public class EquipGearInvFrogs extends AbstractTask {
         gear.add(new nameQuantity(config.mithKiteshield,1));
         gear.add(new nameQuantity(config.mithPlatelegs,1));
 
-        bm.WithdrawItemsRandom(gear);
+        bm.WithdrawXItemsRandom(gear);
         bm.CloseBank();
 
         // Equip new gear
@@ -67,7 +68,7 @@ public class EquipGearInvFrogs extends AbstractTask {
 
 
         bm.OpenBank();
-        bm.WithdrawItemsRandom(inv);
+        bm.WithdrawXItemsRandom(inv);
         bm.CloseBank();
 
         return 0;

@@ -20,6 +20,7 @@ public class TravelToFeroxBank extends AbstractTask {
     @Override
     public int execute() {
         log("[T] Traveling to Ferox bank");
+        config.setStatus("Traveling to Ferox bank");
         if(getLocalPlayer().getY() > config.edgevilleWildernessDitchNorthArea.getY()){
             wm.Walk(config.feroxEnclaveBank, "Ferox Bank already in wildy");
         }

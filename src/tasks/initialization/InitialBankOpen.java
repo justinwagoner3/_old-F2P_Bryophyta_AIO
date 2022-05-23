@@ -16,6 +16,7 @@ public class InitialBankOpen extends AbstractTask {
     @Override
     public int execute() {
         log("[T] Initial Bank Open");
+        config.setStatus("Initial Bank Open");
         if(Bank.open()){
             sleepUntil(Bank::isOpen,Calculations.random(2000,3000));
             Bank.close();

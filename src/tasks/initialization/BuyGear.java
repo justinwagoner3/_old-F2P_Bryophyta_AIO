@@ -19,6 +19,7 @@ public class BuyGear extends AbstractTask {
 
     @Override
     public boolean accept() {
+        // TODO - this breaks if brand new player stops script before pruchasing gear
         if(Equipment.isEmpty() && config.lumbridgeTeleArea.contains(getLocalPlayer())){ // just died or started
             return true;
         }
@@ -30,6 +31,7 @@ public class BuyGear extends AbstractTask {
                 else{
                     for(int i = 0; i < config.getGearList().length; i++){
                         if(!Bank.contains(config.getGearList()[i]) && !Inventory.contains(config.getGearList()[i]) && !Equipment.contains(config.getGearList()[i])){
+                            log("Needs to buy: " + config.getGearList()[i]);
                             return true;
                         }
                     }
@@ -42,6 +44,7 @@ public class BuyGear extends AbstractTask {
     @Override
     public int execute() {
         log("[T] Buying Gear");
+        config.setStatus("Buying Gear");
         // travel to the GE
         wm.Walk(config.grandExchangeArea,"GE");
 
