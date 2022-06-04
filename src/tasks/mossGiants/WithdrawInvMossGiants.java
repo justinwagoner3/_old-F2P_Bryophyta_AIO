@@ -1,25 +1,37 @@
 package tasks.mossGiants;
 
+import config.Config;
 import dataStructures.nameQuantity;
-import methods.BankMethods;
+import methods.BankingMethods;
 import org.dreambot.api.methods.Calculations;
 import org.dreambot.api.methods.container.impl.Inventory;
 import org.dreambot.api.methods.interactive.Players;
-import org.dreambot.api.methods.skills.Skill;
-import org.dreambot.api.methods.skills.Skills;
 import tasks.AbstractTask;
 
 import java.util.ArrayList;
 import java.util.List;
 
 public class WithdrawInvMossGiants extends AbstractTask {
-    BankMethods bm = new BankMethods();
+    BankingMethods bm = new BankingMethods();
 
     @Override
     public boolean accept() {
+        if(config.feroxEnclaveBank.contains(Players.localPlayer()) && config.getState() == Config.State.MOSSGIANTS){
+            if(config.getCurFightingStyle() == Config.FightingStyle.MELEE){
+                if(!Inventory.containsAll(config.strPot4,config.lobster)){
+                    return true;
+                }
+            }
+            if(config.getCurFightingStyle() == Config.FightingStyle.RANGED){
+                if(!Inventory.contains(config.lobster)){
+                    return true;
+                }
+            }
+        }
+
         return config.feroxEnclaveBank.contains(Players.localPlayer())
                 && (!Inventory.contains(config.lobster) || !Inventory.contains(config.strPot4))
-                && Skills.getRealLevel(Skill.DEFENCE) >= 40; // Low enough stats to be fighting rats
+                && config.getState() == Config.State.MOSSGIANTS; // Low enough stats to be fighting rats
     }
 
     @Override
@@ -30,8 +42,8 @@ public class WithdrawInvMossGiants extends AbstractTask {
         // create list to withdraw
         // TODO - grab mithril armor, and in SwitchToFrogs maybe check if necessary to go back to bank or not
         List<nameQuantity> inv = new ArrayList<>();
-        inv.add(new nameQuantity(config.lobster,23));
-        inv.add(new nameQuantity(config.strPot4,4));
+        inv.add(new nameQuantity(config.lobster,22));
+        inv.add(new nameQuantity(config.strPot4,3));
 
 
         // open bank, deposit everything
@@ -42,7 +54,7 @@ public class WithdrawInvMossGiants extends AbstractTask {
         // withdraw items
         bm.WithdrawXItemsRandom(inv);
         bm.CloseBank();
-        return Calculations.random(500,900);
+        return Calculations.random(600,1200);
     }
 
 }

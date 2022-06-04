@@ -1,7 +1,8 @@
 package tasks.frogs;
 
+import config.Config;
 import dataStructures.nameQuantity;
-import methods.BankMethods;
+import methods.BankingMethods;
 import org.dreambot.api.methods.Calculations;
 import org.dreambot.api.methods.container.impl.Inventory;
 import org.dreambot.api.methods.interactive.Players;
@@ -13,13 +14,24 @@ import java.util.ArrayList;
 import java.util.List;
 
 public class WithdrawInvFrogs extends AbstractTask {
-    BankMethods bm = new BankMethods();
+    BankingMethods bm = new BankingMethods();
 
     @Override
     public boolean accept() {
-        return config.lumbridgeBank.contains(Players.localPlayer())
-                && (!Inventory.contains(config.lobster) || !Inventory.contains(config.strPot4))
-                && Skills.getRealLevel(Skill.DEFENCE) < 40; // Low enough stats to be fighting rats
+        if(config.lumbridgeBank.contains(Players.localPlayer()) && config.getState() == Config.State.FROGS){
+            if(config.getCurFightingStyle() == Config.FightingStyle.MELEE){
+                if(!Inventory.containsAll(config.strPot4,config.lobster)){
+                    return true;
+                }
+            }
+            if(config.getCurFightingStyle() == Config.FightingStyle.RANGED){
+                if(!Inventory.contains(config.lobster)){
+                    return true;
+                }
+            }
+        }
+
+        return false;
     }
 
     @Override
@@ -28,23 +40,32 @@ public class WithdrawInvFrogs extends AbstractTask {
         log("[T] Withdrawing inv Frogs");
         config.setStatus("Withdrawing inv Frogs");
         // create list to withdraw
-        // TODO - grab mithril armor, and in SwitchToFrogs maybe check if necessary to go back to bank or not
         List<nameQuantity> inv = new ArrayList<>();
-        inv.add(new nameQuantity(config.lobster,14));
-        if(Skills.getRealLevel(Skill.ATTACK) >= 30 && Skills.getRealLevel(Skill.ATTACK) < 40){
-            inv.add(new nameQuantity(config.runeScimitar, 1));
-            inv.add(new nameQuantity(config.strPot4,13));
+        if(config.getCurFightingStyle() == Config.FightingStyle.MELEE) {
+            inv.add(new nameQuantity(config.lobster, 14));
+            if (Skills.getRealLevel(Skill.ATTACK) >= 30 && Skills.getRealLevel(Skill.ATTACK) < 40) {
+                inv.add(new nameQuantity(config.runeScimitar, 1));
+                inv.add(new nameQuantity(config.strPot4, 12));
+            } else if (Skills.getRealLevel(Skill.ATTACK) >= 20 && Skills.getRealLevel(Skill.ATTACK) < 30) {
+                inv.add(new nameQuantity(config.addyScimitar, 1));
+                inv.add(new nameQuantity(config.runeScimitar, 1));
+                inv.add(new nameQuantity(config.strPot4, 11));
+            } else {
+                log("THIS IS WEIRD - SHOULD NOT HIT THIS");
+                inv.add(new nameQuantity(config.strPot4, 11));
+            }
         }
-        else if(Skills.getRealLevel(Skill.ATTACK) >= 20 && Skills.getRealLevel(Skill.ATTACK) < 30) {
-            inv.add(new nameQuantity(config.addyScimitar, 1));
-            inv.add(new nameQuantity(config.runeScimitar, 1));
-            inv.add(new nameQuantity(config.strPot4,12));
+        if(config.getCurFightingStyle() == Config.FightingStyle.RANGED) {
+            if(Skills.getRealLevel(Skill.RANGED) < 30){
+                inv.add(new nameQuantity(config.mapleShortbow, 1));
+            }
+            if(Skills.getRealLevel(Skill.DEFENCE) >= 40){
+                inv.add(new nameQuantity(config.lobster, 10));
+            }
+            else{
+                inv.add(new nameQuantity(config.lobster, 28));
+            }
         }
-        else{
-            log("THIS IS WEIRD - SHOULD NOT HIT THIS");
-            inv.add(new nameQuantity(config.strPot4,12));
-        }
-
 
         // open bank, deposit everything
         bm.OpenBank();
@@ -54,7 +75,7 @@ public class WithdrawInvFrogs extends AbstractTask {
         // withdraw items
         bm.WithdrawXItemsRandom(inv);
         bm.CloseBank();
-        return Calculations.random(500,900);
+        return Calculations.random(600,1200);
     }
 
 }

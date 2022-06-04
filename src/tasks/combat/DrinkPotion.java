@@ -14,8 +14,9 @@ public class DrinkPotion extends AbstractTask {
 
     @Override
     public boolean accept() {
-        return (config.smallGiantRatArea.contains(Players.localPlayer()) || config.mossGiantWildernessArea.contains(Players.localPlayer()))
-                && Skills.getBoostedLevels(Skill.STRENGTH) - Skills.getRealLevel(Skill.STRENGTH) <= config.getNextDrinkPotionBoostedRealDiff();
+        return (config.largeGiantRatArea.contains(Players.localPlayer()) || config.giantFrogArea.contains(getLocalPlayer()) || config.mossGiantWildernessArea.contains(Players.localPlayer()))
+                && Skills.getBoostedLevels(Skill.STRENGTH) - Skills.getRealLevel(Skill.STRENGTH) <= config.getNextDrinkPotionBoostedRealDiff()
+                && Inventory.contains(config.strPot1,config.strPot2,config.strPot3,config.strPot4);
     }
 
     // TODO - should maybe set a var and let some time pass so not drinking exactly when levels change
@@ -36,7 +37,7 @@ public class DrinkPotion extends AbstractTask {
         else{
             // nothing
         }
-        return 0;
+        return Calculations.random(600,1200);
     }
 
 }

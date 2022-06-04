@@ -10,19 +10,15 @@ import org.dreambot.api.methods.container.impl.equipment.Equipment;
 import java.util.ArrayList;
 import java.util.List;
 
-import static org.dreambot.api.methods.MethodProvider.log;
-import static org.dreambot.api.methods.MethodProvider.sleepUntil;
+import static org.dreambot.api.methods.MethodProvider.*;
 
-public class BankMethods extends AbstractMethod {
+public class BankingMethods extends AbstractMethod {
 
     // TODO - the last withdraw should be a withdraw all
     public void WithdrawXItemsRandom(List<nameQuantity> items) {
         log("[m] Withdrawing x inv at random");
 
-        // save the original list so we can double check
-        List<nameQuantity> origItems = new ArrayList<>(items);
         List<nameQuantity> thisItems = new ArrayList<>(items);
-
 
         // randomly grab gear
         for (int i = 0; i < thisItems.size(); i = 0) {
@@ -32,17 +28,12 @@ public class BankMethods extends AbstractMethod {
             }
             String curItem = thisItems.get(randomIdx).name;
             int quantity = thisItems.get(randomIdx).quantity;
-            if(!Inventory.contains(curItem)) {
-                if(Bank.withdraw(curItem,quantity)) {
-                    sleepUntil(() -> Inventory.contains(curItem), Calculations.random(5000, 6000));
-                }
-            }
+            WithdrawXItem(curItem,quantity);
             thisItems.remove(randomIdx);
         }
-
     }
 
-    public void WithdrawAllItemsNotedRandom(String[] items){
+    public void WithdrawAllItemsRandom(String[] items){
         log("[m] Withdrawing x inv at random");
 
         List<String> thisItems = new ArrayList<>();
@@ -50,15 +41,36 @@ public class BankMethods extends AbstractMethod {
             thisItems.add(item);
         }
 
-        // randomly grab gear
+        // randomly grab
         for (int i = 0; i < thisItems.size(); i = 0) {
             int randomIdx = 0;
             if(thisItems.size() != 1) {
                 randomIdx = Calculations.random(0, thisItems.size());
             }
-            String curItem = thisItems.get(i);
+            String curItem = thisItems.get(randomIdx);
             WithAllItemNoted(curItem);
             thisItems.remove(randomIdx);
+            log(thisItems);
+        }
+    }
+
+    public void WithdrawXItem(String name, int quantity){
+        log("withdraw " + name);
+        while(!Inventory.contains(name)) {
+            if(Bank.withdraw(name,quantity)) {
+                sleepUntil(() -> Inventory.contains(name), Calculations.random(5000, 6000));
+            }
+        }
+    }
+
+    public void WithAllItemNoted(String name){
+        while(!Inventory.contains(name) && Bank.contains(name)) {
+            log("Grabbing " + name);
+            if(Bank.setWithdrawMode(BankMode.NOTE)) {
+                if (Bank.withdrawAll(name)) {
+                    sleepUntil(() -> Inventory.contains(name), Calculations.random(5000, 6000));
+                }
+            }
         }
     }
 
@@ -115,16 +127,8 @@ public class BankMethods extends AbstractMethod {
         }
     }
 
-    public void WithXItem(String name, int quantity){
-        if(!Inventory.contains(name)) {
-            if(Bank.withdraw(name,quantity)) {
-                sleepUntil(() -> Inventory.contains(name), Calculations.random(5000, 6000));
-            }
-        }
-    }
-
-    public void WithAllItem(String name){
-        if(!Inventory.contains(name)) {
+    public void WithdrawAllOfOneItem(String name){
+        while(!Inventory.contains(name)) {
             if(Bank.setWithdrawMode(BankMode.ITEM)) {
                 if (Bank.withdrawAll(name)) {
                     sleepUntil(() -> Inventory.contains(name), Calculations.random(5000, 6000));
@@ -132,17 +136,5 @@ public class BankMethods extends AbstractMethod {
             }
         }
     }
-
-    public void WithAllItemNoted(String name){
-        while(!Inventory.contains(name)) {
-            if(Bank.setWithdrawMode(BankMode.NOTE)) {
-                if (Bank.withdrawAll(name)) {
-                    sleepUntil(() -> Inventory.contains(name), Calculations.random(5000, 6000));
-                }
-            }
-        }
-    }
-
-
 
 }

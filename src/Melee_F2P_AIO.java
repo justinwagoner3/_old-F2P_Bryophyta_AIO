@@ -1,12 +1,19 @@
 import config.Config;
-import dataStructures.itemPrice;
 import org.dreambot.api.Client;
 import org.dreambot.api.data.GameState;
+import org.dreambot.api.methods.Calculations;
+import org.dreambot.api.methods.combat.Combat;
 import org.dreambot.api.methods.container.impl.bank.Bank;
 import org.dreambot.api.methods.input.Camera;
+import org.dreambot.api.methods.prayer.Prayer;
+import org.dreambot.api.methods.prayer.Prayers;
 import org.dreambot.api.methods.skills.Skill;
 import org.dreambot.api.methods.skills.SkillTracker;
 import org.dreambot.api.methods.skills.Skills;
+import org.dreambot.api.methods.tabs.Tab;
+import org.dreambot.api.methods.tabs.Tabs;
+import org.dreambot.api.methods.walking.impl.Walking;
+import org.dreambot.api.methods.walking.pathfinding.impl.obstacle.impl.PassableObstacle;
 import org.dreambot.api.script.Category;
 import org.dreambot.api.script.ScriptManifest;
 import org.dreambot.api.script.impl.TaskScript;
@@ -16,37 +23,39 @@ import org.dreambot.api.script.listener.InventoryListener;
 import org.dreambot.api.utilities.Timer;
 import org.dreambot.api.wrappers.items.Item;
 import org.dreambot.api.wrappers.widgets.message.Message;
-import tasks.allMonsters.MajorLevel;
-import tasks.allMonsters.SwitchCombatStyle;
+import tasks.bryophyta.*;
+import tasks.states.*;
 import tasks.combat.AttackMonster;
 import tasks.combat.DrinkPotion;
 import tasks.combat.EatFood;
 import tasks.combat.EscapeBitchAssPker;
-import tasks.frogs.EquipGearInvFrogs;
+import tasks.frogs.EquipGearFrogs;
 import tasks.frogs.TravelToFrogs;
 import tasks.frogs.WithdrawInvFrogs;
 import tasks.initialization.BuyGear;
 import tasks.initialization.InitialBankOpen;
 import tasks.looting.BuryBones;
 import tasks.looting.Loot;
-import tasks.mossGiants.EquipGearInvMossGiants;
+import tasks.looting.SellLoot;
+import tasks.mossGiants.EquipGearMossGiants;
 import tasks.mossGiants.TravelToFeroxBank;
 import tasks.mossGiants.TravelToMossGiants;
 import tasks.mossGiants.WithdrawInvMossGiants;
-import tasks.rats.EquipGearInvRats;
+import tasks.rats.EquipGearRats;
 import tasks.rats.WithdrawInvRats;
 import tasks.shared_rats_frogs.TravelToLumbridgeBank;
 import tasks.rats.TravelToRats;
-import tasks.allMonsters.UpgradeScimitar;
 import tasks.utility.StartClockOnLogIn;
 import tasks.utility.StopClockOnLogOut;
 
 import javax.imageio.ImageIO;
+import javax.swing.*;
 import java.awt.*;
+import java.awt.event.ActionEvent;
+import java.awt.event.ActionListener;
 import java.io.File;
 import java.io.IOException;
-import java.util.ArrayList;
-import java.util.List;
+import java.lang.reflect.InvocationTargetException;
 
 @ScriptManifest(category = Category.COMBAT,
         name = "Melee_F2P_AIO",
@@ -60,18 +69,39 @@ public class Melee_F2P_AIO extends TaskScript implements InventoryListener, Game
     private Image attImage;
     private Image strImage;
     private Image defImage;
+    private Image rangedImage;
     private Image prayerImage;
     private Image mossyKeyImage;
     private Image bryophytaImage;
     private Image coinsImage;
     private int mossyKeyCount = 0;
     private long profit = 0;
-    private List<itemPrice> itemPrices = new ArrayList<>();
-
+    private boolean isRunning = false;
 
     @Override
     public void onStart() {
 
+        try {
+            SwingUtilities.invokeAndWait(() ->  CreateGUI());
+        } catch (InterruptedException e) {
+            throw new RuntimeException(e);
+        } catch (InvocationTargetException e) {
+            throw new RuntimeException(e);
+        }
+
+        while(!isRunning){
+            sleep(5000);
+            log("Waiting for GUI input");
+        }
+
+        log("Training melee? " + config.isTrainingMelee());
+        log("Training ranged? " + config.isTrainingRanged());
+        log("Melee bryophyta? " + config.isBryophytaMelee());
+        log("Ranged brophyta? " + config.isBryophytaRanged());
+
+        config.ConfigureGearList();
+
+        // wait til logged in
         sleepUntil(Client::isLoggedIn,120000);
         if(Client.isLoggedIn()) {
             log("CLient is logged");
@@ -80,56 +110,67 @@ public class Melee_F2P_AIO extends TaskScript implements InventoryListener, Game
             LoadImages();
 
             // used for tracking time
-            //config.time = new Anti();
             config.timer = new Timer();
-
 
             // load the config
             Config config = Config.getConfig();
 
-            // get the GE prices
-            CreateItemPrices(config.getLootItemsNoBones(), config.getLootItemsPricesNoBones());
+            // necessary for getting to bryophyta
+            Walking.getAStarPathFinder().addObstacle(new PassableObstacle("Web", "Slash", null, null, null));
+            Walking.getAStarPathFinder().addObstacle(new PassableObstacle("Door", "Open", null, null, null));
+            Walking.getAStarPathFinder().addObstacle(new PassableObstacle("Wilderness Ditch", "Cross", null, null, null));
+
 
             // Start DreamBot's skill tracker for the mining skill, so we can later see how much experience we've gained
             SkillTracker.start(Skill.ATTACK);
             SkillTracker.start(Skill.STRENGTH);
             SkillTracker.start(Skill.DEFENCE);
+            SkillTracker.start(Skill.RANGED);
             SkillTracker.start(Skill.PRAYER);
             SkillTracker.start(Skill.HITPOINTS);
 
-            // set config values based on state
-            if (Skills.getRealLevel(Skill.DEFENCE) < 20) {
-                config.setCurMonster(config.giantRat);
-            } else if (Skills.getRealLevel(Skill.DEFENCE) < 40) {
-                config.setCurMonster(config.giantFrog);
-            } else {
-                config.setCurMonster(config.mossGiant);
+            // set the loot table, based on prayer level
+            if(Skills.getRealLevel(Skill.PRAYER) >= 37){
+                config.setCurLootItems(config.getLootItemsNoBones());
+                config.setCurLootItemPrices(config.getLootItemsPricesNoBones());
+            }
+            else{
+                config.setCurLootItems(config.getLootItemsWithBones());
+                config.setCurLootItemPrices(config.getLootItemsPricesWithBones());
             }
 
-
             // Now add our two tasks so the client knows what to do
-            addNodes(new EatFood(),
+            addNodes(new EscapeBitchAssPker(),
+                    new EatFood(),
+                    new DrinkPotion(),
                     new InitialBankOpen(),
+                    new StateChanger(),
+                    new SellLoot(),
                     new BuyGear(),
+                    new ChangeFightingStyle(),
                     new SwitchCombatStyle(),
-                    new EscapeBitchAssPker(),
                     new Loot(),
                     new BuryBones(),
                     new AttackMonster(),
-                    new DrinkPotion(),
                     new MajorLevel(),
                     new UpgradeScimitar(),
-                    new EquipGearInvRats(),
+                    new UpgradeShortbowAndCoif(),
+                    new EquipGearRats(),
                     new TravelToRats(),
                     new TravelToLumbridgeBank(),
                     new WithdrawInvRats(),
-                    new EquipGearInvFrogs(),
+                    new EquipGearFrogs(),
                     new TravelToFrogs(),
                     new WithdrawInvFrogs(),
-                    new EquipGearInvMossGiants(),
+                    new EquipGearMossGiants(),
                     new TravelToMossGiants(),
                     new TravelToFeroxBank(),
                     new WithdrawInvMossGiants(),
+                    new EquipGearBryophyta(),
+                    new TravelToBryophyta(),
+                    new WithdrawInvBryophyta(),
+                    new FightBryophyta(),
+                    new TravelToVarrockEastBank(),
                     new StartClockOnLogIn(),
                     new StopClockOnLogOut()
             );
@@ -141,19 +182,37 @@ public class Melee_F2P_AIO extends TaskScript implements InventoryListener, Game
                 Camera.setZoom(181);
             }
             log("Finished Setting zoom");
-        }
 
-    }
+            // turn on auto-retaliate
+            if(!Combat.isAutoRetaliateOn()){
+                Combat.toggleAutoRetaliate(true);
+            }
 
-    private void CreateItemPrices(String[] lootItems, int[] lootItemPrices) {
-        for(int i = 0; i < lootItems.length; i++) {
-            itemPrices.add(new itemPrice(lootItems[i], lootItemPrices[i]));
+            // turn prayers off
+            if (!Prayers.isActive(Prayer.PROTECT_ITEM)) {
+                Prayers.toggle(false,Prayer.PROTECT_ITEM);
+            }
+            if (!Prayers.isActive(Prayer.PROTECT_FROM_MAGIC)) {
+                Prayers.toggle(false,Prayer.PROTECT_FROM_MAGIC);
+            }
+
+            // check equipment
+            if(Tabs.open(Tab.EQUIPMENT)){
+                sleepUntil(() -> Tabs.isOpen(Tab.EQUIPMENT), Calculations.random(2000,3000));
+            }
+
+            // check inventory
+            if(Tabs.open(Tab.INVENTORY)){
+                sleepUntil(() -> Tabs.isOpen(Tab.INVENTORY), Calculations.random(2000,3000));
+            }
+
         }
     }
 
 
     @Override
     public void onItemChange(Item[] items) {
+        // TODO - handles losing money when buying new gear correctly, but will double dip on potions lobster (take money away buying, take money away using)
         if(!Bank.isOpen()) {
             for (int i = 0; i < items.length; i++) {
                 if (items[i].getName().equalsIgnoreCase(config.mossyKey)) {
@@ -166,9 +225,14 @@ public class Melee_F2P_AIO extends TaskScript implements InventoryListener, Game
                     profit -= config.lobsterPrice;
                 }
                 else{
-                    for(int j = 0; j < config.getLootItemsNoBones().length; j++) {
-                        if (items[i].getName().equalsIgnoreCase(config.getLootItemsNoBones()[j])){
-                            profit += config.getLootItemsPricesNoBones()[j];
+                    for(int j = 0; j < config.getCurLootItems().length; j++) {
+                        if (items[i].getName().equalsIgnoreCase(config.getCurLootItems()[j])){
+                            if(items[i].getName().equals(config.coins)){
+                                profit += items[i].getAmount();
+                            }
+                            else{
+                                profit += config.getLootItemsPricesWithBones()[j];
+                            }
                         }
                     }
                 }
@@ -177,85 +241,100 @@ public class Melee_F2P_AIO extends TaskScript implements InventoryListener, Game
     }
 
 
+    // TODO - change the if to only around xp... i want to be able to see the timer start right when the script does
     public void onPaint(Graphics g) {
-        //long ms = config.time.getElapsedTime();
-        long ms = config.timer.elapsed();
-        long hours = ms / 3600000;
-        ms = ms % 3600000;
-        long minutes = ms / 60000;
-        ms = ms % 60000;
-        long seconds = ms / 1000;
+        if(SkillTracker.hasStarted(Skill.STRENGTH)) {
+            //long ms = config.time.getElapsedTime();
+            long ms = config.timer.elapsed();
+            long hours = ms / 3600000;
+            ms = ms % 3600000;
+            long minutes = ms / 60000;
+            ms = ms % 60000;
+            long seconds = ms / 1000;
 
-        String elapsedTime = String.format(
-                "%d:%d:%d",
-                hours,
-                minutes,
-                seconds
-        );
+            String elapsedTime = String.format(
+                    "%d:%d:%d",
+                    hours,
+                    minutes,
+                    seconds
+            );
 
-        String attExpGainedText = String.format(
-                " %.1fk (%.1fk)",
-                (float) SkillTracker.getGainedExperience(Skill.ATTACK) / 1000,
-                (float) SkillTracker.getGainedExperiencePerHour(Skill.ATTACK) / 1000
-        );
-        String attackLevelText = String.format(
-                "%d (%d) | ",
-                Skills.getRealLevel(Skill.ATTACK),
-                SkillTracker.getGainedLevels(Skill.ATTACK)
-        );
+            String attExpGainedText = String.format(
+                    " %.1fk (%.1fk)",
+                    (float) SkillTracker.getGainedExperience(Skill.ATTACK) / 1000,
+                    (float) SkillTracker.getGainedExperiencePerHour(Skill.ATTACK) / 1000
+            );
+            String attackLevelText = String.format(
+                    "%d (%d) | ",
+                    Skills.getRealLevel(Skill.ATTACK),
+                    SkillTracker.getGainedLevels(Skill.ATTACK)
+            );
 
-        String strExpGainedText = String.format(
-                " %.1fk (%.1fk)",
-                (float) SkillTracker.getGainedExperience(Skill.STRENGTH) / 1000,
-                (float) SkillTracker.getGainedExperiencePerHour(Skill.STRENGTH) / 1000
-        );
-        String strengthLevelText = String.format(
-                "%d (%d) | ",
-                Skills.getRealLevel(Skill.STRENGTH),
-                SkillTracker.getGainedLevels(Skill.STRENGTH)
-        );
-        String defExpGainedText = String.format(
-                " %.1fk (%.1fk)",
-                (float) SkillTracker.getGainedExperience(Skill.DEFENCE) / 1000,
-                (float) SkillTracker.getGainedExperiencePerHour(Skill.DEFENCE) / 1000
-        );
-        String defenseLevelText = String.format(
-                "%d (%d) | ",
-                Skills.getRealLevel(Skill.DEFENCE),
-                SkillTracker.getGainedLevels(Skill.DEFENCE)
-        );
-        String preayerExpGainedText = String.format(
-                " %.1fk (%.1fk)",
-                (float) SkillTracker.getGainedExperience(Skill.PRAYER) / 1000,
-                (float) SkillTracker.getGainedExperiencePerHour(Skill.PRAYER) / 1000
-        );
-        String preayerLevelText = String.format(
-                "%d (%d) | ",
-                Skills.getRealLevel(Skill.PRAYER),
-                SkillTracker.getGainedLevels(Skill.PRAYER)
-        );
-        String title = "Jwagg's Melee F2P AIO";
+            String strExpGainedText = String.format(
+                    " %.1fk (%.1fk)",
+                    (float) SkillTracker.getGainedExperience(Skill.STRENGTH) / 1000,
+                    (float) SkillTracker.getGainedExperiencePerHour(Skill.STRENGTH) / 1000
+            );
+            String strengthLevelText = String.format(
+                    "%d (%d) | ",
+                    Skills.getRealLevel(Skill.STRENGTH),
+                    SkillTracker.getGainedLevels(Skill.STRENGTH)
+            );
 
-        long mossGiantKills = SkillTracker.getGainedExperience(Skill.HITPOINTS) / 80;
-        long mossGiantKillsPerHour = SkillTracker.getGainedExperiencePerHour(Skill.HITPOINTS) / 80;
-        String mossGiantKillsText = String.format(
-                "%d", mossGiantKills
-        );
-        String mossGiantKillsPHText = String.format(
-                "(%d)", mossGiantKillsPerHour
-        );
-        String mossyKeysText = String.format(
-                "%d", mossyKeyCount
-        );
-        String mossyKeysPHText = String.format(
-                "(%.1f)", (float) (mossyKeyCount * 3600000) / config.timer.elapsed()
-        );
-        String profitText = String.format(
-                "%.1fk", (float) profit / 1000
-        );
-        String profitPHText = String.format(
-                "(%.1fk)", (float) (profit * 3600000) / config.timer.elapsed() / 1000
-        );
+            String defExpGainedText = String.format(
+                    " %.1fk (%.1fk)",
+                    (float) SkillTracker.getGainedExperience(Skill.DEFENCE) / 1000,
+                    (float) SkillTracker.getGainedExperiencePerHour(Skill.DEFENCE) / 1000
+            );
+            String defenseLevelText = String.format(
+                    "%d (%d) | ",
+                    Skills.getRealLevel(Skill.DEFENCE),
+                    SkillTracker.getGainedLevels(Skill.DEFENCE)
+            );
+
+            String rangedExpGainedText = String.format(
+                    " %.1fk (%.1fk)",
+                    (float) SkillTracker.getGainedExperience(Skill.RANGED) / 1000,
+                    (float) SkillTracker.getGainedExperiencePerHour(Skill.RANGED) / 1000
+            );
+            String rangedLevelText = String.format(
+                    "%d (%d) | ",
+                    Skills.getRealLevel(Skill.RANGED),
+                    SkillTracker.getGainedLevels(Skill.RANGED)
+            );
+
+            String prayerExpGainedText = String.format(
+                    " %.1fk (%.1fk)",
+                    (float) SkillTracker.getGainedExperience(Skill.PRAYER) / 1000,
+                    (float) SkillTracker.getGainedExperiencePerHour(Skill.PRAYER) / 1000
+            );
+            String prayerLevelText = String.format(
+                    "%d (%d) | ",
+                    Skills.getRealLevel(Skill.PRAYER),
+                    SkillTracker.getGainedLevels(Skill.PRAYER)
+            );
+            String title = "Jwagg's F2P Bryophyta AIO";
+
+            long mossGiantKills = SkillTracker.getGainedExperience(Skill.HITPOINTS) / 80;
+            long mossGiantKillsPerHour = SkillTracker.getGainedExperiencePerHour(Skill.HITPOINTS) / 80;
+            String mossGiantKillsText = String.format(
+                    "%d", mossGiantKills
+            );
+            String mossGiantKillsPHText = String.format(
+                    "(%d)", mossGiantKillsPerHour
+            );
+            String mossyKeysText = String.format(
+                    "%d", mossyKeyCount
+            );
+            String mossyKeysPHText = String.format(
+                    "(%.1f)", (float) (mossyKeyCount * 3600000) / config.timer.elapsed()
+            );
+            String profitText = String.format(
+                    "%.1fk", (float) profit / 1000
+            );
+            String profitPHText = String.format(
+                    "(%.1fk)", (float) (profit * 3600000) / config.timer.elapsed() / 1000
+            );
 
 
         /*
@@ -274,84 +353,93 @@ public class Melee_F2P_AIO extends TaskScript implements InventoryListener, Game
         );
         */
 
-        // background - y:340 - 500
-        g.setColor(Color.BLACK);
-        g.fill3DRect(0, 350, 540, 160, true);
+            // background - y:340 - 500
+            g.setColor(Color.BLACK);
+            g.fill3DRect(0, 350, 540, 160, true);
 
-        g.setColor(Color.LIGHT_GRAY);
-        g.fill3DRect(0, 340, 540, 30, true);
+            g.setColor(Color.LIGHT_GRAY);
+            g.fill3DRect(0, 340, 540, 30, true);
 
-        g.setColor(Color.LIGHT_GRAY);
-        g.fill3DRect(0, 470, 540, 30, true);
+            g.setColor(Color.LIGHT_GRAY);
+            g.fill3DRect(0, 470, 540, 30, true);
 
-        g.setColor(Color.RED);
-        g.fill3DRect(0, 340, 220, 40, true);
+            g.setColor(Color.RED);
+            g.fill3DRect(0, 340, 220, 32, true);
 
-        g.setColor(Color.GREEN);
-        g.fill3DRect(0, 380, 220, 40, true);
+            g.setColor(Color.GREEN);
+            g.fill3DRect(0, 372, 220, 32, true);
 
-        g.setColor(Color.CYAN);
-        g.fill3DRect(0, 420, 220, 40, true);
+            g.setColor(Color.CYAN);
+            g.fill3DRect(0, 404, 220, 32, true);
 
-        g.setColor(Color.WHITE);
-        g.fill3DRect(0, 460, 220, 40, true);
+            g.setColor(Color.GREEN);
+            g.fill3DRect(0, 436, 220, 32, true);
 
-        g.setColor(Color.DARK_GRAY);
-        g.fill3DRect(450, 340, 90, 30, true);
+            g.setColor(Color.WHITE);
+            g.fill3DRect(0, 468, 220, 32, true);
+
+            g.setColor(Color.DARK_GRAY);
+            g.fill3DRect(450, 340, 90, 30, true);
 
 
-        g.setColor(Color.WHITE);
-        g.setFont(new Font("Runescape UF", Font.PLAIN, 18));
-        g.drawString(elapsedTime, 470, 360);
-        g.setFont(new Font("Runescape UF", Font.PLAIN, 16));
-        g.drawString(mossGiantKillsText, 290, 410);
-        g.drawString(mossGiantKillsPHText, 290, 430);
-        g.drawString(mossyKeysText, 380, 440);
-        g.drawString(mossyKeysPHText, 380, 460);
-        g.drawString(profitText, 460, 440);
-        g.drawString(profitPHText, 460, 460);
-        g.setColor(Color.BLACK);
-        g.setFont(new Font("Runescape UF", Font.PLAIN, 16));
-        g.drawString(attackLevelText, 35, 365);
-        g.drawString(attExpGainedText, 95, 365);
-        g.drawString(strengthLevelText, 35, 405);
-        g.drawString(strExpGainedText, 95, 405);
-        g.drawString(defenseLevelText, 35, 445);
-        g.drawString(defExpGainedText, 95, 445);
-        g.drawString(preayerLevelText, 35, 485);
-        g.drawString(preayerExpGainedText, 95, 485);
+            g.setColor(Color.WHITE);
+            g.setFont(new Font("Runescape UF", Font.PLAIN, 18));
+            g.drawString(elapsedTime, 470, 360);
+            g.setFont(new Font("Runescape UF", Font.PLAIN, 16));
+            g.drawString(mossGiantKillsText, 290, 410);
+            g.drawString(mossGiantKillsPHText, 290, 430);
+            g.drawString(mossyKeysText, 380, 440);
+            g.drawString(mossyKeysPHText, 380, 460);
+            g.drawString(profitText, 460, 440);
+            g.drawString(profitPHText, 460, 460);
+            g.setColor(Color.BLACK);
+            g.setFont(new Font("Runescape UF", Font.PLAIN, 16));
+            g.drawString(attackLevelText, 35, 362);
+            g.drawString(attExpGainedText, 95, 362);
+            g.drawString(strengthLevelText, 35, 394);
+            g.drawString(strExpGainedText, 95, 394);
+            g.drawString(defenseLevelText, 35, 426);
+            g.drawString(defExpGainedText, 95, 426);
+            g.drawString(rangedLevelText, 35, 458);
+            g.drawString(rangedExpGainedText, 95, 458);
+            g.drawString(prayerLevelText, 35, 490);
+            g.drawString(prayerExpGainedText, 95, 490);
 
-        g.setColor(Color.BLACK);
-        g.setFont(new Font("Runescape UF", Font.PLAIN, 18));
-        g.drawString(title, 235, 360);
-        g.drawString(config.getStatus(), 235, 490);
+            g.setColor(Color.BLACK);
+            g.setFont(new Font("Runescape UF", Font.PLAIN, 17));
+            g.drawString(title, 230, 360);
+            g.drawString(config.getStatus(), 235, 490);
 
-        // draw imaged
-        if (attImage != null) {
-            g.drawImage(attImage, 5, 343, null);
-        }
-        if (strImage != null) {
-            g.drawImage(strImage, 5, 383, null);
-        }
-        if (defImage != null) {
-            g.drawImage(defImage, 5, 425, null);
-        }
-        if (prayerImage != null) {
-            g.drawImage(prayerImage, 5, 465, null);
-        }
-        if (bryophytaImage != null) {
-            g.drawImage(bryophytaImage, 225, 380, null);
-        }
-        if (mossyKeyImage != null) {
-            g.drawImage(mossyKeyImage, 360, 385, null);
-        }
-        if (coinsImage != null) {
-            g.drawImage(coinsImage, 460, 380, null);
-        }
+            // draw imaged
+            if (attImage != null) {
+                g.drawImage(attImage, 5, 343, null);
+            }
+            if (strImage != null) {
+                g.drawImage(strImage, 5, 376, null);
+            }
+            if (defImage != null) {
+                g.drawImage(defImage, 5, 409, null);
+            }
+            if (rangedImage != null) {
+                g.drawImage(rangedImage, 5, 441, null);
+            }
+            if (prayerImage != null) {
+                g.drawImage(prayerImage, 5, 473, null);
+            }
+            if (bryophytaImage != null) {
+                g.drawImage(bryophytaImage, 225, 380, null);
+            }
+            if (mossyKeyImage != null) {
+                g.drawImage(mossyKeyImage, 360, 385, null);
+            }
+            if (coinsImage != null) {
+                g.drawImage(coinsImage, 460, 380, null);
+            }
 
-        // Now we'll draw the text on the canvas at (5, 35). (0, 0) is the top left of the canvas.
-        if (config.isDistracted()) {
-            g.drawString("DISTRACTED", 5, 0);
+            // Now we'll draw the text on the canvas at (5, 35). (0, 0) is the top left of the canvas.
+            if (config.isDistracted()) {
+                g.drawString("DISTRACTED", 5, 0);
+            }
         }
     }
 
@@ -372,6 +460,12 @@ public class Melee_F2P_AIO extends TaskScript implements InventoryListener, Game
         }
         try{
             defImage = ImageIO.read(new File("/Users/justin.wagoner/DreamBot/Images/Defence_icon.png"));
+        }
+        catch(IOException e){
+            log("Failed to load defence image");
+        }
+        try{
+            rangedImage = ImageIO.read(new File("/Users/justin.wagoner/DreamBot/Images/Ranged_icon.png"));
         }
         catch(IOException e){
             log("Failed to load defence image");
@@ -418,6 +512,76 @@ public class Melee_F2P_AIO extends TaskScript implements InventoryListener, Game
         if (message.getMessage().contains(config.teleBlockedString)) {
             config.setTeleBlocked(true);
         }
+    }
+
+    private void CreateGUI(){
+        JFrame frame = new JFrame();
+        frame.setTitle("Jwagg's F2P Bryophyta AIO");
+        frame.setDefaultCloseOperation(JFrame.DISPOSE_ON_CLOSE);
+        frame.setLocationRelativeTo(Client.getInstance().getApplet());
+        frame.setPreferredSize(new Dimension(400,200));
+        frame.getContentPane().setLayout(new BorderLayout());
+
+
+        // upper gui
+        JPanel settingsPanel = new JPanel();
+        settingsPanel.setLayout(new GridLayout(0,2));
+
+        JLabel trainingText = new JLabel();
+        trainingText.setText("Training Style:");
+        settingsPanel.add(trainingText);
+
+        JLabel bryophytaText = new JLabel();
+        bryophytaText.setText("Bryophyta Style:");
+        settingsPanel.add(bryophytaText);
+
+        JCheckBox trainingMeleeCheckbox = new JCheckBox();
+        trainingMeleeCheckbox.setText("Melee");
+        trainingMeleeCheckbox.setSelected(true);
+        settingsPanel.add(trainingMeleeCheckbox);
+
+        JCheckBox bryophytaMeleeCheckbox = new JCheckBox();
+        bryophytaMeleeCheckbox.setText("Melee");
+        settingsPanel.add(bryophytaMeleeCheckbox);
+
+        JCheckBox trainingRangedCheckbox = new JCheckBox();
+        trainingRangedCheckbox.setText("Ranged");
+        trainingRangedCheckbox.setSelected(true);
+        settingsPanel.add(trainingRangedCheckbox);
+
+        JCheckBox bryophytaRangedCheckbox = new JCheckBox();
+        bryophytaRangedCheckbox.setText("Ranged");
+        bryophytaRangedCheckbox.setSelected(true);
+        settingsPanel.add(bryophytaRangedCheckbox);
+
+        frame.getContentPane().add(settingsPanel, BorderLayout.CENTER);
+
+
+        // lower gui
+        JPanel buttonPanel = new JPanel();
+        buttonPanel.setLayout(new FlowLayout());
+
+        JButton startButton = new JButton();
+        startButton.setText("Start");
+        startButton.addActionListener(new ActionListener() {
+              @Override
+              public void actionPerformed(ActionEvent e) {
+                  config.setTrainingMelee(trainingMeleeCheckbox.isSelected());
+                  config.setTrainingRanged(trainingRangedCheckbox.isSelected());
+                  config.setBryophytaMelee(bryophytaMeleeCheckbox.isSelected());
+                  config.setBryophytaRanged(bryophytaRangedCheckbox.isSelected());
+                  isRunning = true;
+
+                  frame.dispose();
+              }
+        });
+        buttonPanel.add(startButton);
+
+        frame.getContentPane().add(buttonPanel,BorderLayout.SOUTH);
+
+
+        frame.pack();
+        frame.setVisible(true);
     }
 
 }

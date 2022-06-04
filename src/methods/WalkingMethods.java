@@ -16,14 +16,14 @@ import static org.dreambot.api.methods.MethodProvider.*;
 
 public class WalkingMethods extends AbstractMethod {
 
+    private DialogueMethods dm = new DialogueMethods();
 
     // TODO - might want to set it to return bool to maybe be used for double checking
     public void Walk(Area destination, String location){
         log("[m] Walking to " + location);
 
-        // TODO- play around with 6 arg
         while(!destination.contains(getLocalPlayer().getTile())) {
-            if (Walking.shouldWalk(Calculations.random(6))) {
+            if (Walking.shouldWalk(Calculations.random(1,10))) {
                 Walking.walk(destination);
             }
         }
@@ -33,7 +33,6 @@ public class WalkingMethods extends AbstractMethod {
     public void Walk(Area destination, String location){
         log("[m] Walking to " + location);
 
-        // TODO- play around with 6 arg
             if (Walking.shouldWalk(Calculations.random(6))) {
                 log("thinks should walk");
                 Walking.walk(destination);
@@ -45,38 +44,24 @@ public class WalkingMethods extends AbstractMethod {
 
     }
 */
-    public boolean WalkThroughFeroxEnclave(){
-        log("[m] Walking through ferox enclave");
-        // TODO- play around with 6 arg
-        if (Walking.shouldWalk(Calculations.random(6))) {
-            Walking.walk(config.feroxEnclaveInteriorNorth);
-        }
-        GameObject northBarrier = GameObjects.closest(object -> object.getName() != null && object.getName().equals("Barrier"));
-        if(northBarrier != null) {
-            if (northBarrier.interact("Pass-Through")) {
-                sleepUntil(Dialogues::canEnterInput,Calculations.random(5000,6000));
-                // TODO - forex enclove check should be function
-                // TODO - Also first start of dialogue functions
-                if (Dialogues.canContinue()) {
-                    if (Dialogues.clickContinue()) {
-                        sleep(Calculations.random(7000,10000));
-                        if (Dialogues.areOptionsAvailable()) {
-                            if (Dialogues.chooseOption(2)){
-                                sleepUntil(() -> config.feroxEnclaveExteriorNorth.contains(getLocalPlayer()), Calculations.random(4000, 5000));
-                            }
-                        }
+    public void WalkToWildy(Area destination, String location){
+        log("[m] Walk To Wildy " + location);
+        // check if in ferox enclave
+        if(config.feroxEnclave.contains((getLocalPlayer()))){
+            while(!config.feroxEnclaveExteriorNorth.contains(getLocalPlayer().getTile())) {
+                Walk(config.feroxEnclaveInteriorNorth,"Ferox enclave north");
+                GameObject northBarrier = GameObjects.closest(object -> object.getName() != null && object.getName().equals("Barrier"));
+                if(northBarrier != null) {
+                    if (northBarrier.interact("Pass-Through")) {
+                        sleepUntil(() -> Dialogues.canContinue() || config.feroxEnclaveExteriorNorth.contains(getLocalPlayer()), Calculations.random(1000,2000));
+                        dm.FeroxEnclaveMessage();
                     }
                 }
             }
+            Walk(destination,location);
         }
-        return config.feroxEnclaveExteriorNorth.contains(getLocalPlayer());
-
-    }
-
-    public void WalkToWildy(Area destination, String location){
-        log("[m] Walk To Wildy " + location);
         // if already in Wildy, no need to jump the barrier
-        if(getLocalPlayer().getY() > config.edgevilleWildernessDitchNorthArea.getY()){
+        else if(getLocalPlayer().getY() > config.edgevilleWildernessDitchNorthArea.getY()){
             Walk(destination,location);
         }
         else{
@@ -87,10 +72,12 @@ public class WalkingMethods extends AbstractMethod {
                     log("wildy ditch not null");
                     if(wildyDitch.interact("Cross")){
                         sleepUntil(() -> Widgets.getWidgetChild(475, 11, 1) != null || config.edgevilleWildernessDitchNorthArea.contains(getLocalPlayer().getTile()), Calculations.random(5000,8000));
-                        CrossDitchInteraction();
+                        dm.CrossWildyDitchMessage();
+                        sleepUntil(() -> config.edgevilleWildernessDitchNorthArea.contains(getLocalPlayer()),Calculations.random(3000,4000));
                     }
                 }
             }
+            sleep(Calculations.random(1000,2000)); // TODO -an extra sleep to make sure don't double cross ditch, but not best implementation
             Walk(destination,location);
         }
     }
@@ -109,17 +96,21 @@ public class WalkingMethods extends AbstractMethod {
         Walk(destination,location);
     }
 
-    public boolean CrossDitchInteraction(){
-        WidgetChild widget = Widgets.getWidgetChild(475, 11, 1);
-        if(widget == null){
-            return true;
-        }
-        log("Interacting with ditch widget.");
-        return widget.interact();
-    }
+    public void GoDownManhole(){
+        while(!config.varrockSewerSouthLadderArea.contains(getLocalPlayer())) {
+            GameObject manhole = GameObjects.closest(o -> o != null && o.getName().equals(config.manhole));
+            if (manhole != null) {
+                manhole.interact();
+                sleep(Calculations.random(800, 2000));
 
+            }
+        }
+    }
     public boolean TeleHome(){
         log("[m] TeleHome");
+        if(config.lumbridgeTeleArea.getRandomTile().distance(getLocalPlayer()) < 200){
+            return true;
+        }
         // cast spell, wait to see if you are in lumbridge
         Magic.castSpell(Normal.HOME_TELEPORT);
         // TODO - sleep until || message listener says cooldown not reached
@@ -139,11 +130,22 @@ public class WalkingMethods extends AbstractMethod {
         }
     }
 
+    // TODO - fix this, would be useful to know when to stop running from a pker
     public int getWildernessLevel() {
         WidgetChild wildernessLevelWidget = Widgets.getWidgetChild(90, 46);
         if (wildernessLevelWidget != null) {
             return Integer.valueOf(wildernessLevelWidget.getText().replaceAll("\\D+",""));
         }
         return 0;
+    }
+
+    public void GoUpLadder() {
+        while(!config.varrockSewersManholeArea.contains(getLocalPlayer())) {
+            GameObject ladder = GameObjects.closest(o -> o != null && o.getName().equals(config.ladder));
+            if (ladder != null) {
+                ladder.interact();
+                sleepUntil(() -> config.varrockSewersManholeArea.contains(getLocalPlayer()), Calculations.random(2000,3000));
+            }
+        }
     }
 }

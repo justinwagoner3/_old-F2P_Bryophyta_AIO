@@ -1,12 +1,26 @@
  * WalkToWildy:
-    * sometimes closer to ge will hop into wildy then hop back and wait there
-        * eventually did go over, but bot like
+    * starts walking west towards edgeville, then east to hop the line every time
+
+ * Loot:
+    * While fighting frogs wanted to loot a coin in lumbridge castle
+        * should just not have coins apart of the loot list when fighting rats/frogs
+
+ * EscapePKer
+    * insta-logs back in and then sleeps instead of sleeping while logged out
+    * log out is also broken - stops the player from running
+        * would need a check to know for sure i can log to use this
+
+ * EscapePKer
+    * (found online) You should have a thread checking for players near you instead, that will work better
+
+ * EscapePker
+    * got attacked by a deadman i think, didn't register skulled
+
+ * AttackMonster
+    * was trying to attack a rat... had select to attack it and was running towards it, but was stuck behind something
+    * to fix it i had to manually step to a new tile and then start the script again
+    * think this happens when leveling up at the perfect time? noticed i increased an hp lvl the second time it happened
+        * noticed again increased level
+    * FIX: double check healthbar appears if not then click again
 
  * drinks potion, attacks different monster when orig monster was right next to me still
-
- * Sometimes wants to double eat and does it too quickly
- * ended up north of the of the swamp
-  * need to limit the boundary
- * standing south of the house attempted to tele home to travel to rats
- * failed to walk to lumbridge bank from swamp, ran west then east repeated in the northwest part of swamp
- * When attacking a monster, if it goes to loot, should return to attacking same monster

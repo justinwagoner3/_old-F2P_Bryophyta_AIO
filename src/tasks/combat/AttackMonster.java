@@ -1,32 +1,44 @@
 package tasks.combat;
 
+import config.Config;
+import methods.CombatMethods;
 import org.dreambot.api.methods.Calculations;
-import org.dreambot.api.methods.interactive.NPCs;
+import org.dreambot.api.methods.combat.Combat;
+import org.dreambot.api.methods.container.impl.Inventory;
 import org.dreambot.api.methods.interactive.Players;
 import org.dreambot.api.methods.walking.impl.Walking;
-import org.dreambot.api.wrappers.interactive.NPC;
 import tasks.AbstractTask;
 
 public class AttackMonster extends AbstractTask {
+
+    private CombatMethods cm = new CombatMethods();
+
     @Override
     public boolean accept() {
-        // TODO- update to check when enemy health hits 0
-        return (config.largeGiantRatArea.contains(Players.localPlayer()) || config.mossGiantWildernessArea.contains(Players.localPlayer()))
-                && (!Players.localPlayer().isInCombat() || (getLocalPlayer().getInteractingCharacter() != null && getLocalPlayer().getInteractingCharacter().getHealthPercent() == 0));
+        //log("interacting character: " + getLocalPlayer().getInteractingCharacter());
+        //log("char interacting with us: " + getLocalPlayer().getCharacterInteractingWithMe());
+        if((config.largeGiantRatArea.contains(getLocalPlayer()) && config.getState().equals(Config.State.RATS)) || (config.giantFrogArea.contains(getLocalPlayer()) && config.getState().equals(Config.State.FROGS)) || (config.mossGiantWildernessArea.contains(getLocalPlayer()) && config.getState().equals(Config.State.MOSSGIANTS))){ // in combat area
+            if(Inventory.contains(config.lobster)){ // with supplies
+                if(config.getCurFightingStyle() != Config.FightingStyle.MELEE || Inventory.contains(config.strPot1, config.strPot2, config.strPot3, config.strPot4)) {
+                    if (!getLocalPlayer().isInCombat() && !getLocalPlayer().isMoving()) {
+                        return true;
+                    }
+                    // this fixes leveling up while attacking error
+                    if(getLocalPlayer().isInCombat() && !getLocalPlayer().isHealthBarVisible()){
+                        return true;
+                    }
+                }
+            }
+        }
+        return false;
     }
 
     @Override
     public int execute() {
         log("[T] Attacking monster... ");
         config.setStatus("Attacking " + config.getCurMonster());
-        String monster = config.getCurMonster();
-        NPC currentNpc = NPCs.closest(npc -> npc != null && npc.getName() != null && npc.getName().equals(monster) && !npc.isInCombat() && npc.getInteractingCharacter() == null);
-        if(currentNpc != null) { //does the npc exist?
-            if (currentNpc.interact("Attack")) { //currentNpc will return true if we succesfully attacked the rat, if that happens we want to wait a bit to make sure we are in combat
-                log(currentNpc.getName());
-                sleepUntil(() -> getLocalPlayer().isInCombat() || getLocalPlayer().getInteractingCharacter() != null, Calculations.random(2000,3000)); //Wait a max of 2 seconds or until we are in combat
-            }
-        }
+        // walk to monster if too far away
+        cm.AttackMonster(config.getCurMonster());
         // check if run needs to be enabled
         // TODO - turn into function
         if(!Walking.isRunEnabled()){
@@ -37,7 +49,12 @@ public class AttackMonster extends AbstractTask {
                 }
             }
         }
-        //if(Players.localPlayer())
+
+        // TODO- probably should not exist here
+        // turn auto retailiate on if necessary
+        if(!Combat.isAutoRetaliateOn()){
+            Combat.toggleAutoRetaliate(true);
+        }
         return Calculations.random(400,1300);
     }
 

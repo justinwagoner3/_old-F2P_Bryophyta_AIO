@@ -1,10 +1,10 @@
 package tasks.shared_rats_frogs;
 
+import config.Config;
 import methods.WalkingMethods;
+import org.dreambot.api.methods.Calculations;
 import org.dreambot.api.methods.container.impl.Inventory;
 import org.dreambot.api.methods.interactive.Players;
-import org.dreambot.api.methods.skills.Skill;
-import org.dreambot.api.methods.skills.Skills;
 import tasks.AbstractTask;
 
 public class TravelToLumbridgeBank extends AbstractTask {
@@ -13,21 +13,33 @@ public class TravelToLumbridgeBank extends AbstractTask {
 
     @Override
     public boolean accept() {
-        return (!Inventory.contains(config.lobster) || (!Inventory.contains(config.strPot4) && !Inventory.contains(config.strPot3) && !Inventory.contains(config.strPot2) && !Inventory.contains(config.strPot1))) // inv does not have potions or lobster
-                && Skills.getRealLevel(Skill.DEFENCE) < 40 // Low enough stats to be fighting rats/frogs
-                && !config.lumbridgeBank.contains(Players.localPlayer());
+        if(config.getState() == Config.State.RATS || config.getState() == Config.State.FROGS){
+            if(!config.lumbridgeBank.contains(Players.localPlayer())){
+                if(!Inventory.contains(config.lobster)){
+                    return true;
+                }
+                if(config.getCurFightingStyle() == Config.FightingStyle.MELEE){
+                    if(!Inventory.contains(config.strPot4,config.strPot3,config.strPot2,config.strPot1));
+                }
+            }
+        }
+
+        return false;
     }
 
     @Override
     public int execute() {
         log("[T] Traveling to Lumbridge bank");
         config.setStatus("Traveling to Lumbridge bank");
-        // teleport home, if far away from home
-        // TODO - add in potential tele home instead of running
-        wm.Walk(config.lumbridgeBank, "Lumbridge bank");
-
-
-        return 0;
+        if(config.giantFrogArea.contains(getLocalPlayer()) || config.largeGiantRatArea.contains(getLocalPlayer())){
+            wm.Walk(config.lumbridgeGraveyard,"lumb graveyard");
+            wm.Walk(config.lumbridgeBank, "Lumbridge bank");
+        }
+        else {
+            wm.TeleHome();
+            wm.Walk(config.lumbridgeBank, "Lumbridge bank");
+        }
+        return Calculations.random(600,1200);
 
     }
 

@@ -1,23 +1,28 @@
 package tasks.looting;
 
-import methods.BankMethods;
+import methods.BankingMethods;
 import methods.GrandExchangeMethods;
 import methods.WalkingMethods;
+import org.dreambot.api.methods.Calculations;
+import org.dreambot.api.methods.container.impl.Inventory;
 import org.dreambot.api.methods.container.impl.bank.Bank;
 import tasks.AbstractTask;
 
 public class SellLoot extends AbstractTask {
     private WalkingMethods wm = new WalkingMethods();
-    private BankMethods bm = new BankMethods();
+    private BankingMethods bm = new BankingMethods();
     private GrandExchangeMethods gem = new GrandExchangeMethods();
 
+    // TODO- change condition later and will need a different array of sellable items that does not include cash, bones, keys
     @Override
     public boolean accept() {
-        return config.isInitBankOpened() && Bank.count(config.coins) < 50000;
+        return config.isInitBankOpened() && Bank.count(config.coins) < 10000 && Inventory.count(config.coins) < 10000;
     }
 
     @Override
     public int execute() {
+        log("[T] Sell Loot");
+        config.setStatus("Selling loot");
         wm.Walk(config.grandExchangeArea,"GE");
 
         // open and deposit
@@ -25,9 +30,15 @@ public class SellLoot extends AbstractTask {
         bm.DepositAllInventory();
 
         // from list of things looted
-        bm.WithdrawAllItemsNotedRandom(config.getLootItemsNoBones());
+        bm.WithdrawAllItemsRandom(config.getCurLootItems());
 
-        return 0;
+        // sell everything
+        gem.OpenGE();
+        gem.SellAllItemsInInv();
+        gem.CloseGE();
+
+
+        return Calculations.random(600,1200);
     }
 
 }

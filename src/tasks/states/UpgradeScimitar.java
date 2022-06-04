@@ -1,5 +1,6 @@
-package tasks.allMonsters;
+package tasks.states;
 
+import org.dreambot.api.methods.Calculations;
 import org.dreambot.api.methods.container.impl.Inventory;
 import org.dreambot.api.methods.skills.Skill;
 import org.dreambot.api.methods.skills.Skills;
@@ -17,7 +18,7 @@ public class UpgradeScimitar extends AbstractTask {
     @Override
     // TODO - turn weilding into a method
     public int execute() {
-        log("[T] Upgrading scimitar too...");
+        log("[T] Upgrading scimitar to...");
         config.setStatus("Upgrading scimitar");
         if(Skills.getRealLevel(Skill.ATTACK) == 10) {
             log("Black");
@@ -44,6 +45,6 @@ public class UpgradeScimitar extends AbstractTask {
             }
         }
 
-        return 0;
+        return Calculations.random(600,1200);
     }
 }

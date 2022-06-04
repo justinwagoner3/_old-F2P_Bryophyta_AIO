@@ -1,6 +1,8 @@
 package tasks.mossGiants;
 
+import config.Config;
 import methods.WalkingMethods;
+import org.dreambot.api.methods.Calculations;
 import org.dreambot.api.methods.container.impl.Inventory;
 import org.dreambot.api.methods.interactive.Players;
 import org.dreambot.api.methods.skills.Skill;
@@ -12,24 +14,30 @@ public class TravelToFeroxBank extends AbstractTask {
 
     @Override
     public boolean accept() {
-        return (!Inventory.contains(config.lobster) || (!Inventory.contains(config.strPot4) && !Inventory.contains(config.strPot3) && !Inventory.contains(config.strPot2) && !Inventory.contains(config.strPot1))) // inv does not have potions or lobster
-                && Skills.getRealLevel(Skill.DEFENCE) >= 40 // high enough stats for moss giants
-                && !config.feroxEnclaveBank.contains(Players.localPlayer());
+        if(config.getState() == Config.State.MOSSGIANTS && !config.feroxEnclaveBank.contains(Players.localPlayer())){
+            if(config.getCurFightingStyle() == Config.FightingStyle.MELEE){
+                if(Inventory.containsAll(config.strPot4,config.lobster)){
+                    return true;
+                }
+            }
+            if(config.getCurFightingStyle() == Config.FightingStyle.RANGED){
+                if(Inventory.contains(config.lobster)){
+                    return true;
+                }
+            }
+        }
+
+        return false;
     }
 
     @Override
     public int execute() {
         log("[T] Traveling to Ferox bank");
         config.setStatus("Traveling to Ferox bank");
-        if(getLocalPlayer().getY() > config.edgevilleWildernessDitchNorthArea.getY()){
-            wm.Walk(config.feroxEnclaveBank, "Ferox Bank already in wildy");
-        }
-        else {
-            wm.WalkToWildy(config.feroxEnclaveBank, "Ferox Bank through ditch");
-        }
+        wm.WalkToWildy(config.feroxEnclaveBank, "Ferox Bank");
 
 
-        return 0;
+        return Calculations.random(600,1200);
 
     }
 

@@ -1,25 +1,43 @@
  * TOP TODOs:
     * HopWorlds
-    * evade PKer
+    * SellLoot fix
+
+ * Sell Loot:
+    * create a sellable array since some items can't be sold f2p
+
+ * Turn run on
+    * should be it's own Node, not part of attacking a monster
+
+ * EscapePker:
+    * will start running away and keep running even if not being attacked anymore
+
+ * Handle death
+    * go loot key on the ground if you have a gravestone
+
+ * Buy Gear:
+    * Because I died and needed to re-gear, Wanted to buy 300 lobsters even though I had 100+ in the bank
+
+ * Won't loot bones for frogs when too far north
+
+ * Should loot closest item - sometimes walks real far away to pick up bones when there are bones right next to player
 
  * Fixing static prices
     * `(Inventory.count("item") + Bank.count("item")) * LivePrices.get("item"))` might work
 
- * The walking path out of ferox enclave is pretty bot like
+ * TravelToLumBank
+    * spam clicks in the bank until bank is in view, should just click once and wait until bank in view
+
  * Walk:
-    * have to manually enable walking out of enclave right now
     * having the walk in a while loop will make it impossible to eat
         * temp fixed by EscapePker eating while running
+
  * Loot:
     * add a check if inv is full to still pick up stackables
         * itemToPickUp.getItem().isStackable()
-    * could probably just loot everything over a certain getItem.getValue()
+
  * If running out of potions before food, should stay and fight insteaf of drink potion and run right to bank
- * buy gear:
-    * check if i have the item in bank first before buying
-    * set activate condition to activate if any of the gear is missing
-    * always buy 1st slot, 2nd slot, 1st slot, 2nd slot... need it randomized
  * could randomize even more with global variables that change the min max bounds of random calcs every run
- * could implement a task that checks if in combat, then constantly query the next monster so next attack monsteer happens quicker
  * add a trade checker
     * had someone randomly trade me gear probably trying to catch bots
+
+ * When attacking a monster, if it goes to loot, should return to attacking same monster

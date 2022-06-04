@@ -5,25 +5,61 @@ import org.dreambot.api.methods.container.impl.Inventory;
 import org.dreambot.api.methods.container.impl.bank.Bank;
 import org.dreambot.api.methods.container.impl.equipment.Equipment;
 import org.dreambot.api.methods.grandexchange.GrandExchange;
+import org.dreambot.api.wrappers.items.Item;
+
+import java.util.ArrayList;
 
 import static org.dreambot.api.methods.MethodProvider.log;
 import static org.dreambot.api.methods.MethodProvider.sleepUntil;
 
 public class GrandExchangeMethods extends AbstractMethod {
-    public void BuyGearIfNecessary(String item, int amount, int price){
+    public void BuyGearIfNecessary(String item, int amount){
         log("[m] Buying Gear If Necessary - " + item);
+        // check if you need to but the item
         if(!Bank.contains(item) && !Inventory.contains(item) && !Equipment.contains(item)) {
-            // TODO - always buys from slot 1 then 2 then 1 then 2
-            if (GrandExchange.buyItem(item, amount, price)) {
+            // check if you need to collect
+            if(GrandExchange.isReadyToCollect()){
+                GrandExchange.collect();
+                sleepUntil(() -> !GrandExchange.isReadyToCollect(), Calculations.random(Calculations.random(2000, 3000)));
+            }
+
+            // buy the item
+            if (GrandExchange.buyItem(item, amount, Inventory.count(config.coins)/amount)) {
                 log("yes");
-                // TODO - long wait, should increase price if fails
-                sleepUntil(GrandExchange::isReadyToCollect, Calculations.random(100000, 200000));
+                sleepUntil(GrandExchange::isReadyToCollect, Calculations.random(10000, 20000));
                 GrandExchange.collect();
                 sleepUntil(() -> Inventory.contains(item), Calculations.random(Calculations.random(2000, 3000)));
             }
         }
     }
 
+    /*
+    // TODO- assumes you only need to buy one thing
+    // for now only used with ranged gear
+    // TODO- BuyGear half of it uses this function and other half the one above
+    public void BuyGearIfNecessary(ArrayList<String> items){
+        log("[m] Buying Gear If Necessary (list)");
+        // check if you need to but the item
+        for(String item : items) {
+            if (!Bank.contains(item) && !Inventory.contains(item) && !Equipment.contains(item)) {
+                // check if you need to collect
+                if (GrandExchange.isReadyToCollect()) {
+                    GrandExchange.collect();
+                    sleepUntil(() -> !GrandExchange.isReadyToCollect(), Calculations.random(Calculations.random(2000, 3000)));
+                }
+
+                // buy the item
+                if (GrandExchange.buyItem(item, 1, Inventory.count(config.coins))) {
+                    sleepUntil(GrandExchange::isReadyToCollect, Calculations.random(100000, 200000));
+                    GrandExchange.collect();
+                    sleepUntil(() -> Inventory.contains(item), Calculations.random(Calculations.random(2000, 3000)));
+                }
+            }
+        }
+    }
+
+
+     */
     public void OpenGE(){
         log("[m] Open GE");
         while(!GrandExchange.isOpen()){
@@ -36,6 +72,18 @@ public class GrandExchangeMethods extends AbstractMethod {
         while(GrandExchange.isOpen()){
             GrandExchange.close();
             sleepUntil(() -> !GrandExchange.isOpen(), Calculations.random(2000,3000));
+        }
+    }
+
+    public void SellAllItemsInInv(){
+        for(Item i : Inventory.all()){
+            if (i != null && GrandExchange.sellItem(i.getName(),i.getAmount(),1)) {
+                log("Selling " + i.getName());
+                // TODO - long wait, should increase price if fails
+                sleepUntil(GrandExchange::isReadyToCollect, Calculations.random(100000, 200000));
+                GrandExchange.collect();
+                sleepUntil(() -> !Inventory.contains(i), Calculations.random(Calculations.random(2000, 3000)));
+            }
         }
     }
 

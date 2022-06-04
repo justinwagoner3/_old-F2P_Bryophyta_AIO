@@ -1,10 +1,10 @@
 package tasks.frogs;
 
+import config.Config;
 import methods.WalkingMethods;
+import org.dreambot.api.methods.Calculations;
 import org.dreambot.api.methods.container.impl.Inventory;
 import org.dreambot.api.methods.interactive.Players;
-import org.dreambot.api.methods.skills.Skill;
-import org.dreambot.api.methods.skills.Skills;
 import tasks.AbstractTask;
 
 public class TravelToFrogs extends AbstractTask {
@@ -13,22 +13,29 @@ public class TravelToFrogs extends AbstractTask {
 
     @Override
     public boolean accept() {
-        return  !config.giantFrogArea.contains(Players.localPlayer()) // Not in the Giant Rat Area
-                && (Skills.getRealLevel(Skill.DEFENCE) >= 20 && Skills.getRealLevel(Skill.DEFENCE) < 40) // Correct states to be fighting giant frogs
-                && Inventory.contains("Lobster") && Inventory.contains("Strength potion(4)") // Inventory has supplies
-                && !getLocalPlayer().isInCombat(); // Not already in combat
+        if(!config.giantFrogArea.contains(Players.localPlayer()) && config.getState() == Config.State.FROGS && !getLocalPlayer().isInCombat()){
+            if(config.getCurFightingStyle() == Config.FightingStyle.MELEE){
+                if(Inventory.containsAll(config.strPot4,config.lobster)){
+                    return true;
+                }
+            }
+            if(config.getCurFightingStyle() == Config.FightingStyle.RANGED){
+                if(Inventory.contains(config.lobster)){
+                    return true;
+                }
+            }
+        }
+
+        return false;
     }
 
     public int execute() {
         log("[T] Traveling to giant frogs");
         config.setStatus("Traveling to giant frogs");
         // teleport home, if far away from home
-        // TODO - there's a todo about home tele in TravelToLumBank, add a check in the method about no need to teleport if already close enough
-        if(!config.lumbridgeAndSwampArea.contains(Players.localPlayer()) && !config.lumbridgeBank.contains(Players.localPlayer()) && !config.lumbridgeSecondFloor.contains(Players.localPlayer())) {
-            wm.TeleHome();
-        }
+        wm.TeleHome();
         wm.Walk(config.giantFrogArea, "Giant Frogs");
-        return 0;
+        return Calculations.random(600,1200);
     }
 
 }
