@@ -42,33 +42,6 @@ public class LootingMethods extends AbstractMethod {
     }
 
     public boolean ShouldLootMultipleItemsExceptSingleItem(String[] items, String itemToNotLoot) {
-        /*
-        // get a list of all ground object
-        allGroundItems = GroundItems.all(o -> o != null);
-
-        // if any in the list match, set that item as the item to pick up
-        for(int i = 0; i < allGroundItems.size(); i++){
-            for(int j = 0; j < items.length; j++){
-                if(allGroundItems.get(i).getName().equals(items[j])){
-                    if(allGroundItems.get(i).getAmount() > 1 || !allGroundItems.get(i).getName().equals(config.chaosRune)){
-                            itemToPickUp = allGroundItems.get(i);
-                            return true;
-                    }
-                }
-            }
-        }
-        return false;
-        */
-/*
-        List<String> curLootItemsList = Arrays.asList(config.getCurLootItems());
-        itemToPickUp = GroundItems.closest(i -> i != null && curLootItemsList.contains(i.getName()));
-        if(itemToPickUp != null){
-            return true;
-        }
-        else{
-            return false;
-        }
-*/
 
         List<String> curLootItemsList = Arrays.asList(config.getCurLootItems());
         itemToPickUp = GroundItems.closest(new Filter<GroundItem>(){
@@ -79,6 +52,9 @@ public class LootingMethods extends AbstractMethod {
                 }
                 // check if contained in our looting list
                 if(curLootItemsList.contains(gi.getName())){
+                    if(gi.getName().equals(config.coins)){
+                        return gi.getAmount() >= 60;
+                    }
                     if(!gi.getName().equals(itemToNotLoot)){
                         return true;
                     }

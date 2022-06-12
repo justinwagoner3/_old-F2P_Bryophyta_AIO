@@ -33,7 +33,7 @@ public class StateChanger extends AbstractTask {
                         return true;
                     }
                 }
-                if (config.isInitBankOpened() && Bank.count(config.mossyKey) < 3) {
+                if (Bank.count(config.mossyKey)+Inventory.count(config.mossyKey) < 3) {
                     if (config.getState() != Config.State.MOSSGIANTS) {
                         return true;
                     }
@@ -42,7 +42,7 @@ public class StateChanger extends AbstractTask {
             }
             // if we are above 50 in all stats, and we have enough keys, or our inventory is already loaded for bryophyta, or we are standing outside his lair, we are fighting bryophyta
             if (Skills.getRealLevel(Skill.ATTACK) >= 50 && Skills.getRealLevel(Skill.STRENGTH) >= 50 && Skills.getRealLevel(Skill.DEFENCE) >= 50) {
-                if (config.isInitBankOpened() && Bank.count(config.mossyKey) >= 3) {
+                if (Bank.count(config.mossyKey)+Inventory.count(config.mossyKey) >= 3) {
                     if (config.getState() != Config.State.BRYOPHYTA) {
                         return true;
                     }
@@ -76,7 +76,7 @@ public class StateChanger extends AbstractTask {
                         return true;
                     }
                 }
-                if (config.isInitBankOpened() && Bank.count(config.mossyKey) < 3) {
+                if (Bank.count(config.mossyKey)+Inventory.count(config.mossyKey) < 3) {
                     if (config.getState() != Config.State.MOSSGIANTS) {
                         return true;
                     }
@@ -85,7 +85,7 @@ public class StateChanger extends AbstractTask {
             }
             // if we are range/def is 60/40, and we have enough keys, or our inventory is already loaded for bryophyta, or we are standing outside his lair, we are fighting bryophyta
             if (Skills.getRealLevel(Skill.RANGED) >= 60 && Skills.getRealLevel(Skill.DEFENCE) >= 40) {
-                if (config.isInitBankOpened() && Bank.count(config.mossyKey) >= 3) {
+                if (Bank.count(config.mossyKey)+Inventory.count(config.mossyKey) >= 3) {
                     if (config.getState() != Config.State.BRYOPHYTA) {
                         return true;
                     }
@@ -133,7 +133,7 @@ public class StateChanger extends AbstractTask {
                         config.setCurMonster(config.mossGiant);
                     }
                 }
-                if (config.isInitBankOpened() && Bank.count(config.mossyKey) < 3) {
+                if (Bank.count(config.mossyKey)+Inventory.count(config.mossyKey) < 3) {
                     if (config.getState() != Config.State.MOSSGIANTS) {
                         log("MOSS GIANTS");
                         config.setState(Config.State.MOSSGIANTS);
@@ -143,7 +143,7 @@ public class StateChanger extends AbstractTask {
             }
             // if we are above 50 in all stats, and we have enough keys, or our inventory is already loaded for bryophyta, we are fighting bryophyta
             if (Skills.getRealLevel(Skill.ATTACK) >= 50 && Skills.getRealLevel(Skill.STRENGTH) >= 50 && Skills.getRealLevel(Skill.DEFENCE) >= 50) {
-                if (config.isInitBankOpened() && Bank.count(config.mossyKey) >= 3) {
+                if (Bank.count(config.mossyKey)+Inventory.count(config.mossyKey) >= 3) {
                     if (config.getState() != Config.State.BRYOPHYTA) {
                         log("BRYOPHYTA");
                         config.setState(Config.State.BRYOPHYTA);
@@ -187,7 +187,7 @@ public class StateChanger extends AbstractTask {
                         config.setCurMonster(config.mossGiant);
                     }
                 }
-                if (config.isInitBankOpened() && Bank.count(config.mossyKey) < 3) {
+                if (Bank.count(config.mossyKey)+Inventory.count(config.mossyKey) < 3) {
                     if (config.getState() != Config.State.MOSSGIANTS) {
                         log("MOSS GIANTS");
                         config.setState(Config.State.MOSSGIANTS);
@@ -198,7 +198,7 @@ public class StateChanger extends AbstractTask {
             }
             // if we are range/def is 60/40, and we have enough keys, or our inventory is already loaded for bryophyta, or we are standing outside his lair, we are fighting bryophyta
             if (Skills.getRealLevel(Skill.RANGED) >= 60 && Skills.getRealLevel(Skill.DEFENCE) >= 40) {
-                if (config.isInitBankOpened() && Bank.count(config.mossyKey) >= 3) {
+                if (Bank.count(config.mossyKey)+Inventory.count(config.mossyKey) >= 3) {
                     if (config.getState() != Config.State.BRYOPHYTA) {
                         log("BRYOPHYTA");
                         config.setState(Config.State.BRYOPHYTA);
@@ -216,5 +216,4 @@ public class StateChanger extends AbstractTask {
         }
         return Calculations.random(2000,3000);
     }
-
 }

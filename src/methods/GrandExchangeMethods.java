@@ -13,6 +13,9 @@ import static org.dreambot.api.methods.MethodProvider.log;
 import static org.dreambot.api.methods.MethodProvider.sleepUntil;
 
 public class GrandExchangeMethods extends AbstractMethod {
+
+    private int price;
+
     public void BuyGearIfNecessary(String item, int amount){
         log("[m] Buying Gear If Necessary - " + item);
         // check if you need to but the item
@@ -24,7 +27,15 @@ public class GrandExchangeMethods extends AbstractMethod {
             }
 
             // buy the item
-            if (GrandExchange.buyItem(item, amount, Inventory.count(config.coins)/amount)) {
+            if(amount == 1){
+                if(Inventory.count(config.coins) > 100000){
+                    price = 100000;
+                }
+            }
+            else{
+                price = Inventory.count(config.coins)/amount;
+            }
+            if (GrandExchange.buyItem(item, amount, price)) {
                 log("yes");
                 sleepUntil(GrandExchange::isReadyToCollect, Calculations.random(10000, 20000));
                 GrandExchange.collect();
@@ -75,16 +86,22 @@ public class GrandExchangeMethods extends AbstractMethod {
         }
     }
 
+    // TODO - sloppy
     public void SellAllItemsInInv(){
+        if(GrandExchange.isReadyToCollect()){
+            GrandExchange.collect();
+            sleepUntil(() -> !GrandExchange.isReadyToCollect(),4000);
+        }
         for(Item i : Inventory.all()){
-            if (i != null && GrandExchange.sellItem(i.getName(),i.getAmount(),1)) {
-                log("Selling " + i.getName());
-                // TODO - long wait, should increase price if fails
-                sleepUntil(GrandExchange::isReadyToCollect, Calculations.random(100000, 200000));
-                GrandExchange.collect();
-                sleepUntil(() -> !Inventory.contains(i), Calculations.random(Calculations.random(2000, 3000)));
+            if (i != null) {
+                if(GrandExchange.sellItem(i.getName(),i.getAmount(),1)) {
+                    log("Selling " + i.getName());
+                    // TODO - long wait, should decrease price if fails
+                    sleepUntil(GrandExchange::isReadyToCollect, Calculations.random(100000, 200000));
+                    GrandExchange.collect();
+                    sleepUntil(() -> !Inventory.contains(i), Calculations.random(Calculations.random(2000, 3000)));
+                }
             }
         }
     }
-
 }

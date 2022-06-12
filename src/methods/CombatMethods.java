@@ -6,6 +6,8 @@ import org.dreambot.api.methods.combat.CombatStyle;
 import org.dreambot.api.methods.container.impl.Inventory;
 import org.dreambot.api.methods.container.impl.equipment.Equipment;
 import org.dreambot.api.methods.interactive.NPCs;
+import org.dreambot.api.methods.prayer.Prayer;
+import org.dreambot.api.methods.prayer.Prayers;
 import org.dreambot.api.methods.skills.Skill;
 import org.dreambot.api.methods.skills.Skills;
 import org.dreambot.api.methods.tabs.Tab;
@@ -39,46 +41,48 @@ public class CombatMethods extends AbstractMethod {
         log("[m] Eating... " + food);
         if(Tabs.isOpen(Tab.INVENTORY) || Tabs.open(Tab.INVENTORY)) {
             if (Inventory.interact(food, "Eat")) {
-                sleepUntil(() -> getLocalPlayer().getHealthPercent() > config.getNextEatAtPercentage(), 3000);
+                sleepUntil(() -> getLocalPlayer().getHealthPercent() > config.getNextEatAtPercentage(), 2000);
                 // TODO - this should probably be in the task, not method
                 if (Skills.getRealLevel(Skill.HITPOINTS) < 40) {
                     config.setNextEatAtPercentage(Calculations.random(20, 40));
                 } else {
-                    config.setNextEatAtPercentage(Calculations.random(40, 80));
+                    config.setNextEatAtPercentage(Calculations.random(50, 70));
                 }
             }
         }
-
     }
 
     // TODO- randomize this
+    // TODO- could fail by repeatedly drinking if already at max boost
     public void DrinkPotion(String pot1, String pot2, String pot3, String pot4){
         log("[m] Drinking potion...");
         if(Tabs.isOpen(Tab.INVENTORY) || Tabs.open(Tab.INVENTORY)) {
             int curBoostedLevel = Skills.getBoostedLevels(Skill.STRENGTH);
-            if (Inventory.contains(pot1)) {
-                if (Inventory.interact(pot1, "Drink")) {
-                    log(pot1);
-                    sleepUntil(() -> Inventory.contains(config.vial), Calculations.random(2000, 3000));
-                    if (Inventory.contains(config.vial)) {
-                        Inventory.dropAll(config.vial);
-                        sleepUntil(() -> !Inventory.contains(config.vial), Calculations.random(2000, 3000));
+            while(curBoostedLevel == Skills.getBoostedLevels(Skill.STRENGTH)) {
+                if (Inventory.contains(pot1)) {
+                    if (Inventory.interact(pot1, "Drink")) {
+                        log(pot1);
+                        sleepUntil(() -> Inventory.contains(config.vial), Calculations.random(2000, 3000));
+                        if (Inventory.contains(config.vial)) {
+                            Inventory.dropAll(config.vial);
+                            sleepUntil(() -> !Inventory.contains(config.vial), Calculations.random(2000, 3000));
+                        }
                     }
+                } else if (Inventory.contains(pot2)) {
+                    Inventory.interact(pot2, "Drink");
+                    log(pot2);
+                } else if (Inventory.contains(pot3)) {
+                    Inventory.interact(pot3, "Drink");
+                    log(pot3);
+                } else if (Inventory.contains(pot4)) {
+                    Inventory.interact(pot4, "Drink");
+                    log(pot4);
+                } else {
+                    log("no poition to drink");
                 }
-            } else if (Inventory.contains(pot2)) {
-                Inventory.interact(pot2, "Drink");
-                log(pot2);
-            } else if (Inventory.contains(pot3)) {
-                Inventory.interact(pot3, "Drink");
-                log(pot3);
-            } else if (Inventory.contains(pot4)) {
-                Inventory.interact(pot4, "Drink");
-                log(pot4);
-            } else {
-                log("no poition to drink");
-            }
 
-            sleepUntil(() -> curBoostedLevel != Skills.getBoostedLevels(Skill.STRENGTH), Calculations.random(2000, 3000));
+                sleepUntil(() -> curBoostedLevel != Skills.getBoostedLevels(Skill.STRENGTH), Calculations.random(2000, 3000));
+            }
         }
     }
 
@@ -95,9 +99,8 @@ public class CombatMethods extends AbstractMethod {
         return;
     }
 
-    // TODO- maybe not supposed to be in CombatMethods?
     public void EquipAllItemsInInv() {
-        log("[m] starting equip items");
+        log("[m] Equip All Items in Inv");
 
         // make sure inventory tab is open
         if(Tabs.isOpen(Tab.INVENTORY) || Tabs.open(Tab.INVENTORY)) {
@@ -118,4 +121,44 @@ public class CombatMethods extends AbstractMethod {
         }
 
     }
+
+    public void TurnPrayerOff(Prayer prayer){
+        if (Prayers.isActive(prayer)) {
+            Prayers.toggle(false,prayer);
+        }
+    }
+
+    public void TurnPrayerOn(Prayer prayer){
+        if (!Prayers.isActive(prayer)) {
+            Prayers.toggle(true,prayer);
+        }
+    }
+
+    public boolean OpenTab(Tab tab){
+        if(Tabs.isOpen(tab) || Tabs.open(tab)){
+            sleepUntil(() -> Tabs.isOpen(tab), Calculations.random(2000,3000));
+        }
+        return Tabs.isOpen(tab);
+    }
+
+    public boolean TurnAutoRetaliateOn(){
+        if(OpenTab(Tab.COMBAT)) {
+            if (!Combat.isAutoRetaliateOn()) {
+                Combat.toggleAutoRetaliate(true);
+                sleepUntil(Combat::isAutoRetaliateOn,Calculations.random(2000,3000));
+            }
+        }
+        return Combat.isAutoRetaliateOn();
+    }
+
+    public boolean TurnAutoRetaliateOff(){
+        if(OpenTab(Tab.COMBAT)) {
+            if (Combat.isAutoRetaliateOn()) {
+                Combat.toggleAutoRetaliate(false);
+                sleepUntil(() -> !Combat.isAutoRetaliateOn(),Calculations.random(2000,3000));
+            }
+        }
+        return !Combat.isAutoRetaliateOn();
+    }
+
 }

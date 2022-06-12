@@ -21,10 +21,20 @@ public class WithdrawInvBryophyta extends AbstractTask {
 
     @Override
     public boolean accept() {
-        return (config.varrockEastBank.contains(Players.localPlayer()) || config.grandExchangeArea.contains(getLocalPlayer()))
-                && (!Inventory.contains(config.swordfish) || !Inventory.contains(config.strPot4) || !Inventory.contains(config.bronzeAxe) || !Inventory.contains(config.mossyKey))
-                && config.getState() == Config.State.BRYOPHYTA; // Low enough stats to be fighting rats
+        if((config.varrockEastBank.contains(Players.localPlayer()) || config.grandExchangeArea.contains(getLocalPlayer())) && config.getState() == Config.State.BRYOPHYTA){
+            if(config.getCurFightingStyle() == Config.FightingStyle.MELEE){
+                if(!Inventory.containsAll(config.strPot4,config.swordfish,config.bronzeAxe,config.mossyKey)){
+                    return true;
+                }
+            }
+            if(config.getCurFightingStyle() == Config.FightingStyle.RANGED){
+                if(!Inventory.contains(config.swordfish,config.mossyKey,config.bronzeAxe,config.ironScimitar)){
+                    return true;
+                }
+            }
+        }
 
+        return false;
     }
 
     @Override
@@ -34,10 +44,18 @@ public class WithdrawInvBryophyta extends AbstractTask {
         // create list to withdraw
         // TODO - grab mithril armor, and in SwitchToFrogs maybe check if necessary to go back to bank or not
         List<nameQuantity> inv = new ArrayList<>();
-        inv.add(new nameQuantity(config.swordfish,25));
-        inv.add(new nameQuantity(config.bronzeAxe,1));
-        inv.add(new nameQuantity(config.mossyKey,2));
-        inv.add(new nameQuantity(config.strPot4,1));
+        if(config.getCurFightingStyle() == Config.FightingStyle.MELEE) {
+            inv.add(new nameQuantity(config.swordfish, 25));
+            inv.add(new nameQuantity(config.bronzeAxe, 1));
+            inv.add(new nameQuantity(config.mossyKey, 3));
+            inv.add(new nameQuantity(config.strPot4, 1));
+        }
+        if(config.getCurFightingStyle() == Config.FightingStyle.RANGED){
+            inv.add(new nameQuantity(config.swordfish, 25));
+            inv.add(new nameQuantity(config.bronzeAxe, 1));
+            inv.add(new nameQuantity(config.mossyKey, 3));
+            inv.add(new nameQuantity(config.ironScimitar, 1));
+        }
 
 
         // open bank, deposit everything

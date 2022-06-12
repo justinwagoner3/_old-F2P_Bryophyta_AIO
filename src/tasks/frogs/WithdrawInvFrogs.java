@@ -58,12 +58,13 @@ public class WithdrawInvFrogs extends AbstractTask {
         if(config.getCurFightingStyle() == Config.FightingStyle.RANGED) {
             if(Skills.getRealLevel(Skill.RANGED) < 30){
                 inv.add(new nameQuantity(config.mapleShortbow, 1));
+                inv.add(new nameQuantity(config.lobster, 20));
             }
-            if(Skills.getRealLevel(Skill.DEFENCE) >= 40){
+            else if(Skills.getRealLevel(Skill.DEFENCE) >= 40){
                 inv.add(new nameQuantity(config.lobster, 10));
             }
             else{
-                inv.add(new nameQuantity(config.lobster, 28));
+                inv.add(new nameQuantity(config.lobster, 20));
             }
         }
 

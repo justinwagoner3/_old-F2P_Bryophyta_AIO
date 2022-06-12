@@ -28,10 +28,9 @@ public class EscapeBitchAssPker extends AbstractTask {
     private BankingMethods bm = new BankingMethods();
 
     // TODO - should activate when north of wilderness and when not in the ferox enclave
-    // TODO - does not check deadman skull, has to wait until attacked by deadman to run
     @Override
     public boolean accept() {
-        List<Player> allPlayers = Players.all(p -> p != null && (p.isSkulled() && Math.abs(p.getLevel()-getLocalPlayer().getLevel()) <= 40) || (p.getInteractingCharacter() != null && p.getInteractingCharacter().equals(getLocalPlayer())));
+        List<Player> allPlayers = Players.all(p -> p != null && (p.getSkullIcon() != -1 && Math.abs(p.getLevel()-getLocalPlayer().getLevel()) <= 40) || (p.getInteractingCharacter() != null && p.getInteractingCharacter().equals(getLocalPlayer())));
         if(!allPlayers.isEmpty() && config.getState() == Config.State.MOSSGIANTS){ // TODO - change to north of wildy
             return true;
         }

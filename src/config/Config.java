@@ -19,6 +19,14 @@ public class Config {
     // time
     public Timer timer = new Timer();
 
+    public String[] getAllSellableLootList() {
+        return allSellableLootList;
+    }
+
+    public String[] getAllButOneSellableLootList() {
+        return allButOneSellableLootList;
+    }
+
     // enum
     public enum State {
         RATS, FROGS, MOSSGIANTS, BRYOPHYTA
@@ -95,18 +103,26 @@ public class Config {
 
     // TODO - sloppy
     private final String[] lootItemsNoBones = {this.lawRune,this.cosmicRune,this.natureRune,this.deathRune,this.mossyKey,this.uncutRuby,
-                                    this.blackSqShield,this.mithSword,this.steelKiteshield,this.steelArrow,this.chaosRune};
-    private final int[] lootItemsPricesNoBones = {this.lawRunePrice,this.cosmicRunePrice,this.natureRunePrice,this.deathRunePrice,this.mossyKeyPrice,this.uncutRubyPrice,
-            this.blackSqShieldPrice,this.mithSwordPrice,this.steelKiteshieldPrice,this.steelArrowPrice,this.chaosRunePrice};
-
+                                    this.blackSqShield,this.mithSword,this.steelKiteshield,this.steelArrow,this.chaosRune, this.coins,
+                                    this.runeLongsword,this.runeMedHelm,this.runeChainbody,this.runePlateskirt,this.runePlatelegs,
+                                    this.runeSqShield,this.runeSword,this.addyPlatebody,this.runeFullHelm,this.addyKiteshield,
+                                    this.addyArrow,this.runeBar,this.uncutDiamond,this.steelBar,this.strPot4,this.bryophytasEssence};
     private final String[] lootItemsWithBones = {this.lawRune,this.cosmicRune,this.natureRune,this.deathRune,this.mossyKey,this.uncutRuby,
-            this.blackSqShield,this.mithSword,this.steelKiteshield,this.steelArrow,this.chaosRune,this.bigBones,this.coins};
+            this.blackSqShield,this.mithSword,this.steelKiteshield,this.steelArrow,this.chaosRune,this.bigBones,this.coins,
+            this.runeLongsword,this.runeMedHelm,this.runeChainbody,this.runePlateskirt,this.runePlatelegs,
+            this.runeSqShield,this.runeSword,this.addyPlatebody,this.runeFullHelm,this.addyKiteshield,
+            this.addyArrow,this.runeBar,this.uncutDiamond,this.steelBar,this.strPot4,this.bryophytasEssence};
 
-    private final int[] lootItemsPricesWithBones = {this.lawRunePrice,this.cosmicRunePrice,this.natureRunePrice,this.deathRunePrice,this.mossyKeyPrice,this.uncutRubyPrice,
-            this.blackSqShieldPrice,this.mithSwordPrice,this.steelKiteshieldPrice,this.steelArrowPrice,this.chaosRunePrice,0,0};
+    private final String[] allSellableLootList = {this.lawRune,this.cosmicRune,this.natureRune,this.deathRune,this.uncutRuby,
+            this.blackSqShield,this.mithSword,this.steelKiteshield,this.steelArrow,this.bigBones,
+            this.runeLongsword,this.runeMedHelm,this.runePlateskirt,
+            this.runeSqShield,this.runeSword,this.addyPlatebody,this.addyKiteshield,
+            this.runeBar,this.uncutDiamond,this.steelBar,this.bryophytasEssence};
+
+    private final String[] allButOneSellableLootList = {this.runeChainbody,this.runePlatelegs,this.runeFullHelm};
+
 
     private String[] curLootItems;
-    private int[] curLootItemPrices;
 
 
     // chat messages
@@ -133,10 +149,8 @@ public class Config {
 
     // locations
     public final Area deathsRoom = new Area(13002,5059,13012,5066);
-    public final Tile bryophytaLairWeb = new Tile(3210, 9898);
     public final Area varrockSewerSouthLadderArea = new Area(3236,9857,3237,9860);
     public final Area bryophytaLairEntrance = new Area(3173,9896,3175,9902);
-    public final Area bryophytaLair = new Area(9934,455,9948,469); // "Clamber" "Rock Pile" all caps
     public final Area varrockSewersManholeArea = new Area(3236,3455,3240,3460);
     public final Area varrockEastBank = new Area(3250,3418,3257,3426);
     public final Area feroxEnclaveInteriorNorth = new Area(3133,3633,3136,3639);
@@ -144,7 +158,7 @@ public class Config {
     public final Area feroxEnclaveBank = new Area(3130,3625,3139,3632);
     public final Area feroxEnclave = new Area(3127,3619,3144,3638);
     public final Area grandExchangeArea = new Area(3153, 3474, 3177, 3504);
-    public final Area lumbridgeTeleArea = new Area(3218,3214,3226,3222);
+    public final Area lumbridgeTeleArea = new Area(3218,3212,3226,3226);
     public final Area largeGiantRatArea = new Area(3140,3148,3234,3198);
     public final Area smallGiantRatArea = new Area(3193,3148,3214,3196);
     public final Area lumbridgeAndSwampArea = new Area(3162,3158,3300,3340);
@@ -155,8 +169,8 @@ public class Config {
     public final Area giantFrogArea = new Area(3189,3167,3212,3197);
     public final Area mossGiantWildernessArea = new Area(3130,3800,3153,3833);
     // TODO - could get the whole length (longer x plane)
-    public final Area edgevilleWildernessDitchSouthArea = new Area(3086,3516,3140,3520);
-    public final Area edgevilleWildernessDitchNorthArea = new Area(3086,3521,3140,3525);
+    public final Area edgevilleWildernessDitchSouthArea = new Area(3135,3516,3144,3520);
+    public final Area edgevilleWildernessDitchNorthArea = new Area(3135,3521,3144,3525);
     public final Area edgevilleBank = new Area(3090,3488,3099,3499);
 
     // objects
@@ -195,8 +209,11 @@ public class Config {
     public final String leatherChaps = "Leather chaps";
     public final String greendHideVambraces = "Green d'hide vambraces";
     public final String leatherVambraces = "Leather vambraces";
-
-
+    public final String runeMedHelm = "Rune med helm";
+    public final String runePlateskirt = "Rune plateskirt";
+    public final String runeSqShield = "Rune sq shield";
+    public final String addyPlatebody = "Adamant platebody";
+    public final String addyKiteshield = "Adamant kiteshield";
 
 
     // weapons
@@ -205,6 +222,8 @@ public class Config {
     public final String mithScimitar = "Mithril scimitar";
     public final String addyScimitar = "Adamant scimitar";
     public final String runeScimitar = "Rune scimitar";
+    public final String runeLongsword = "Rune longsword";
+    public final String runeSword = "Rune sword";
 
     // bows
     public final String shortbow = "Shortbow";
@@ -247,6 +266,11 @@ public class Config {
     public final String bigBones = "Big bones";
     public final String bones = "Bones";
     public final String bronzeAxe = "Bronze axe";
+    public final String runeBar = "Runite bar";
+    public final String uncutDiamond = "Uncut diamond";
+    public final String steelBar = "Steel bar";
+    public final String bryophytasEssence = "Bryophyta's essence";
+
 
 
     // monsters
@@ -375,10 +399,6 @@ public class Config {
     }
 
 
-    public int[] getLootItemsPricesWithBones() {
-        return lootItemsPricesWithBones;
-    }
-
     public String getStatus() {
         return status;
     }
@@ -395,25 +415,6 @@ public class Config {
         this.curLootItems = curLootItems;
     }
 
-    public int[] getCurLootItemPrices() {
-        return curLootItemPrices;
-    }
-
-    public void setCurLootItemPrices(int[] curLootItemPrices) {
-        this.curLootItemPrices = curLootItemPrices;
-    }
-
-    public int[] getLootItemsPricesNoBones() {
-        return lootItemsPricesNoBones;
-    }
-
-    public boolean isAlreadyUnderAttack() {
-        return alreadyUnderAttack;
-    }
-
-    public void setAlreadyUnderAttack(boolean alreadyUnderAttack) {
-        this.alreadyUnderAttack = alreadyUnderAttack;
-    }
 
     public boolean isTrainingMelee() {
         return trainingMelee;

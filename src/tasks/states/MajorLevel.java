@@ -13,7 +13,7 @@ public class MajorLevel extends AbstractTask {
         return (config.getCurAttackLevel() != Skills.getRealLevel(Skill.ATTACK) && Skills.getRealLevel(Skill.ATTACK) % 10 == 0 && Skills.getRealLevel(Skill.ATTACK) <= 50)
                 || (config.getCurStrengthLevel() != Skills.getRealLevel(Skill.STRENGTH) && Skills.getRealLevel(Skill.STRENGTH) % 10 == 0 && Skills.getRealLevel(Skill.STRENGTH) <= 50)
                 || (config.getCurDefenceLevel() != Skills.getRealLevel(Skill.DEFENCE) && Skills.getRealLevel(Skill.DEFENCE) % 10 == 0 && Skills.getRealLevel(Skill.DEFENCE) <= 50)
-                || (config.getCurDefenceLevel() != Skills.getRealLevel(Skill.DEFENCE) && Skills.getRealLevel(Skill.PRAYER) == 37);
+                || (config.getCurPrayerLevel() != Skills.getRealLevel(Skill.PRAYER) && Skills.getRealLevel(Skill.PRAYER) == 37);
     }
 
     @Override
@@ -27,7 +27,6 @@ public class MajorLevel extends AbstractTask {
         // TODO - this is handled weirdly, not sure what to do about this whole class honestly
         if(Skills.getRealLevel(Skill.PRAYER) == 37){
             config.setCurLootItems(config.getLootItemsNoBones());
-            config.setCurLootItemPrices(config.getLootItemsPricesNoBones());
         }
 
 

@@ -12,9 +12,19 @@ public class TravelToBryophyta extends AbstractTask {
 
     @Override
     public boolean accept() {
-        return !config.bryophytaLairEntrance.contains(Players.localPlayer()) // Not in the Giant Rat Area
-                && config.getState() == Config.State.BRYOPHYTA
-                && Inventory.containsAll(config.swordfish,config.strPot4,config.mossyKey,config.bronzeAxe); // Inventory has supplies
+        if(!config.bryophytaLairEntrance.contains(Players.localPlayer()) && config.getState() == Config.State.BRYOPHYTA){
+            if(config.getCurFightingStyle() == Config.FightingStyle.MELEE){
+                if(Inventory.containsAll(config.swordfish,config.strPot4,config.mossyKey,config.bronzeAxe)){
+                    return true;
+                }
+            }
+            if(config.getCurFightingStyle() == Config.FightingStyle.RANGED){
+                if(Inventory.containsAll(config.swordfish,config.ironScimitar,config.mossyKey,config.bronzeAxe)){
+                    return true;
+                }
+            }
+        }
+        return false;
     }
 
     @Override

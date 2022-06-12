@@ -1,9 +1,12 @@
 import config.Config;
+import methods.CombatMethods;
 import org.dreambot.api.Client;
 import org.dreambot.api.data.GameState;
 import org.dreambot.api.methods.Calculations;
 import org.dreambot.api.methods.combat.Combat;
+import org.dreambot.api.methods.container.impl.Inventory;
 import org.dreambot.api.methods.container.impl.bank.Bank;
+import org.dreambot.api.methods.grandexchange.GrandExchange;
 import org.dreambot.api.methods.input.Camera;
 import org.dreambot.api.methods.prayer.Prayer;
 import org.dreambot.api.methods.prayer.Prayers;
@@ -24,11 +27,8 @@ import org.dreambot.api.utilities.Timer;
 import org.dreambot.api.wrappers.items.Item;
 import org.dreambot.api.wrappers.widgets.message.Message;
 import tasks.bryophyta.*;
+import tasks.combat.*;
 import tasks.states.*;
-import tasks.combat.AttackMonster;
-import tasks.combat.DrinkPotion;
-import tasks.combat.EatFood;
-import tasks.combat.EscapeBitchAssPker;
 import tasks.frogs.EquipGearFrogs;
 import tasks.frogs.TravelToFrogs;
 import tasks.frogs.WithdrawInvFrogs;
@@ -77,6 +77,7 @@ public class Melee_F2P_AIO extends TaskScript implements InventoryListener, Game
     private int mossyKeyCount = 0;
     private long profit = 0;
     private boolean isRunning = false;
+    private CombatMethods cm = new CombatMethods();
 
     @Override
     public void onStart() {
@@ -104,7 +105,7 @@ public class Melee_F2P_AIO extends TaskScript implements InventoryListener, Game
         // wait til logged in
         sleepUntil(Client::isLoggedIn,120000);
         if(Client.isLoggedIn()) {
-            log("CLient is logged");
+            log("Client is logged");
 
             // load images
             LoadImages();
@@ -119,6 +120,7 @@ public class Melee_F2P_AIO extends TaskScript implements InventoryListener, Game
             Walking.getAStarPathFinder().addObstacle(new PassableObstacle("Web", "Slash", null, null, null));
             Walking.getAStarPathFinder().addObstacle(new PassableObstacle("Door", "Open", null, null, null));
             Walking.getAStarPathFinder().addObstacle(new PassableObstacle("Wilderness Ditch", "Cross", null, null, null));
+            Walking.getAStarPathFinder().addObstacle(new PassableObstacle("Barrier", "Pass-Through", null, null, null)); // TODO- double check this
 
 
             // Start DreamBot's skill tracker for the mining skill, so we can later see how much experience we've gained
@@ -132,16 +134,15 @@ public class Melee_F2P_AIO extends TaskScript implements InventoryListener, Game
             // set the loot table, based on prayer level
             if(Skills.getRealLevel(Skill.PRAYER) >= 37){
                 config.setCurLootItems(config.getLootItemsNoBones());
-                config.setCurLootItemPrices(config.getLootItemsPricesNoBones());
             }
             else{
                 config.setCurLootItems(config.getLootItemsWithBones());
-                config.setCurLootItemPrices(config.getLootItemsPricesWithBones());
             }
 
             // Now add our two tasks so the client knows what to do
             addNodes(new EscapeBitchAssPker(),
                     new EatFood(),
+                    new HopWorlds(),
                     new DrinkPotion(),
                     new InitialBankOpen(),
                     new StateChanger(),
@@ -181,49 +182,59 @@ public class Melee_F2P_AIO extends TaskScript implements InventoryListener, Game
             if(Camera.getZoom() != 181) {
                 Camera.setZoom(181);
             }
+            if(Camera.getPitch() != 383) {
+                Camera.keyboardRotateToPitch(383);
+            }
             log("Finished Setting zoom");
 
             // turn on auto-retaliate
+            log("Check auto-retaliate");
+            cm.TurnAutoRetaliateOn();
+/*
             if(!Combat.isAutoRetaliateOn()){
                 Combat.toggleAutoRetaliate(true);
             }
+*/
 
             // turn prayers off
-            if (!Prayers.isActive(Prayer.PROTECT_ITEM)) {
-                Prayers.toggle(false,Prayer.PROTECT_ITEM);
-            }
-            if (!Prayers.isActive(Prayer.PROTECT_FROM_MAGIC)) {
-                Prayers.toggle(false,Prayer.PROTECT_FROM_MAGIC);
-            }
+            log("Turn all prayers off");
+            cm.TurnPrayerOff(Prayer.PROTECT_ITEM);
+            cm.TurnPrayerOff(Prayer.PROTECT_FROM_MAGIC);
 
             // check equipment
+            while(!cm.OpenTab(Tab.EQUIPMENT));
+/*
             if(Tabs.open(Tab.EQUIPMENT)){
                 sleepUntil(() -> Tabs.isOpen(Tab.EQUIPMENT), Calculations.random(2000,3000));
             }
+*/
 
             // check inventory
+            while(!cm.OpenTab(Tab.INVENTORY));
+/*
             if(Tabs.open(Tab.INVENTORY)){
                 sleepUntil(() -> Tabs.isOpen(Tab.INVENTORY), Calculations.random(2000,3000));
             }
-
+*/
         }
     }
 
 
     @Override
     public void onItemChange(Item[] items) {
-        // TODO - handles losing money when buying new gear correctly, but will double dip on potions lobster (take money away buying, take money away using)
-        if(!Bank.isOpen()) {
+        // subtract
+        if(Bank.isOpen()) {
             for (int i = 0; i < items.length; i++) {
                 if (items[i].getName().equalsIgnoreCase(config.mossyKey)) {
                     mossyKeyCount++;
                 }
-                else if(items[i].getName().equals(config.strPot4) || items[i].getName().equals(config.strPot3) || items[i].getName().equals(config.strPot2) || items[i].getName().equals(config.strPot1) || items[i].getName().equals(config.vial)){
+                if(items[i].getName().equals(config.strPot4) || items[i].getName().equals(config.strPot3) || items[i].getName().equals(config.strPot2) || items[i].getName().equals(config.strPot1) || items[i].getName().equals(config.vial)){
                     profit -= (long) config.strPot4Price/8;
                 }
-                else if(items[i].getName().equals(config.lobster)){
+                if(items[i].getName().equals(config.lobster)){
                     profit -= config.lobsterPrice;
                 }
+
                 else{
                     for(int j = 0; j < config.getCurLootItems().length; j++) {
                         if (items[i].getName().equalsIgnoreCase(config.getCurLootItems()[j])){
@@ -231,7 +242,7 @@ public class Melee_F2P_AIO extends TaskScript implements InventoryListener, Game
                                 profit += items[i].getAmount();
                             }
                             else{
-                                profit += config.getLootItemsPricesWithBones()[j];
+                                //profit += config.getLootItemsPricesWithBones()[j];
                             }
                         }
                     }
@@ -239,7 +250,6 @@ public class Melee_F2P_AIO extends TaskScript implements InventoryListener, Game
             }
         }
     }
-
 
     // TODO - change the if to only around xp... i want to be able to see the timer start right when the script does
     public void onPaint(Graphics g) {

@@ -16,12 +16,12 @@ public class TravelToFeroxBank extends AbstractTask {
     public boolean accept() {
         if(config.getState() == Config.State.MOSSGIANTS && !config.feroxEnclaveBank.contains(Players.localPlayer())){
             if(config.getCurFightingStyle() == Config.FightingStyle.MELEE){
-                if(Inventory.containsAll(config.strPot4,config.lobster)){
+                if(!Inventory.containsAll(config.strPot4,config.lobster)){
                     return true;
                 }
             }
             if(config.getCurFightingStyle() == Config.FightingStyle.RANGED){
-                if(Inventory.contains(config.lobster)){
+                if(!Inventory.contains(config.lobster)){
                     return true;
                 }
             }

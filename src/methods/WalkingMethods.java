@@ -22,28 +22,19 @@ public class WalkingMethods extends AbstractMethod {
     public void Walk(Area destination, String location){
         log("[m] Walking to " + location);
 
-        while(!destination.contains(getLocalPlayer().getTile())) {
-            if (Walking.shouldWalk(Calculations.random(1,10))) {
+        while(!destination.contains(getLocalPlayer())) {
+            // check marked mini map tile if in destination location, then don't spam walk
+            if(destination.contains(Walking.getDestination())){
+                sleepUntil(() -> destination.contains(getLocalPlayer()),7000);
+            }
+            if (Walking.shouldWalk(Calculations.random(0,6))) {
                 Walking.walk(destination);
             }
         }
     }
 
-/*
-    public void Walk(Area destination, String location){
-        log("[m] Walking to " + location);
-
-            if (Walking.shouldWalk(Calculations.random(6))) {
-                log("thinks should walk");
-                Walking.walk(destination);
-            }
-            else{
-                log("left the if statement... sleeping");
-                sleep(1000);
-            }
-
-    }
-*/
+    // TODO - probably a better way to handle this
+    // Handles hopping wilderness ditch and leaving ferox enclave
     public void WalkToWildy(Area destination, String location){
         log("[m] Walk To Wildy " + location);
         // check if in ferox enclave
@@ -53,7 +44,7 @@ public class WalkingMethods extends AbstractMethod {
                 GameObject northBarrier = GameObjects.closest(object -> object.getName() != null && object.getName().equals("Barrier"));
                 if(northBarrier != null) {
                     if (northBarrier.interact("Pass-Through")) {
-                        sleepUntil(() -> Dialogues.canContinue() || config.feroxEnclaveExteriorNorth.contains(getLocalPlayer()), Calculations.random(1000,2000));
+                        sleepUntil(() -> Dialogues.canContinue() || config.feroxEnclaveExteriorNorth.contains(getLocalPlayer()), Calculations.random(3000,4000));
                         dm.FeroxEnclaveMessage();
                     }
                 }
@@ -65,7 +56,7 @@ public class WalkingMethods extends AbstractMethod {
             Walk(destination,location);
         }
         else{
-            while(!config.edgevilleWildernessDitchNorthArea.contains(getLocalPlayer().getTile())) {
+            while(!config.edgevilleWildernessDitchNorthArea.contains(getLocalPlayer())) {
                 Walk(config.edgevilleWildernessDitchSouthArea, "Edgevile Wildy Ditch");
                 GameObject wildyDitch = GameObjects.closest(object -> object.getName() != null && object.getID() == 23271);
                 if(wildyDitch != null && wildyDitch.isOnScreen()){
@@ -80,20 +71,6 @@ public class WalkingMethods extends AbstractMethod {
             sleep(Calculations.random(1000,2000)); // TODO -an extra sleep to make sure don't double cross ditch, but not best implementation
             Walk(destination,location);
         }
-    }
-
-    public void WalkFromWildy(Area destination, String location) {
-        while(!config.edgevilleWildernessDitchSouthArea.contains(getLocalPlayer().getTile())) {
-            Walk(config.edgevilleWildernessDitchNorthArea, "Edgevile Wildy Ditch");
-            GameObject wildyDitch = GameObjects.closest(object -> object.getName() != null && object.getID() == 23271);
-            if(wildyDitch != null){
-                log("wildy ditch not null");
-                if(wildyDitch.interact("Cross")){
-                    sleepUntil(() -> config.edgevilleWildernessDitchSouthArea.contains(getLocalPlayer().getTile()), Calculations.random(5000,8000));
-                }
-            }
-        }
-        Walk(destination,location);
     }
 
     public void GoDownManhole(){

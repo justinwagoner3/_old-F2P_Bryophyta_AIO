@@ -19,13 +19,8 @@ public class Loot extends AbstractTask {
             }
             else{
                 if(!Inventory.isFull()){ // TODO- update to check if stackable and inv is full with that item in a slot already
-                    if(config.mossGiantWildernessArea.contains(getLocalPlayer()) || config.giantFrogArea.contains(getLocalPlayer())) { // don't loot unless you are in monster areas; TODO - this should be loot when loot is within x distance of me
-                        //if(!getLocalPlayer().isInCombat()){ // don't leave combat
-                        //    log("looting because not in combat");
-                        //    return true;
-                        //}
-                        //if (getLocalPlayer().getCharacterInteractingWithMe() != null && getLocalPlayer().getCharacterInteractingWithMe().getHealthPercent() == 0) { // can leave once they have 0 health
-                        //if (getLocalPlayer().getInteractingCharacter() == null || (getLocalPlayer().getCharacterInteractingWithMe() != null && getLocalPlayer().getCharacterInteractingWithMe().getHealthPercent() == 0)) { // can leave once they have 0 health
+                    //if(config.mossGiantWildernessArea.contains(getLocalPlayer()) || config.giantFrogArea.contains(getLocalPlayer())) { // don't loot unless you are in monster areas;
+                    if(lm.itemToPickUp.getTile().distance(getLocalPlayer()) < 30) { // don't loot unless loot is close enough
                         if(!getLocalPlayer().isInCombat() && !getLocalPlayer().isMoving()){
                             return true;
                         }

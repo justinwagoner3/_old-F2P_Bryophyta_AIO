@@ -20,9 +20,29 @@ public class EquipGearBryophyta extends AbstractTask {
 
     @Override
     public boolean accept() {
+        if(config.getState() == Config.State.BRYOPHYTA){
+            // shared
+            if(!Equipment.containsAll(config.leatherBoots,config.amuletOfPower,config.blackCape)){
+                return true;
+            }
+            // melee
+            if(config.getCurFightingStyle() == Config.FightingStyle.MELEE){
+                if(!Equipment.containsAll(config.leatherGloves,config.runeFullHelm,config.runeKiteshield,config.runeChainbody,config.runePlatelegs,config.runeScimitar)){
+                    return true;
+                }
+            }
+            // range
+            if(config.getCurFightingStyle() == Config.FightingStyle.RANGED){
+                if(!Equipment.containsAll(config.coif,config.greendHideVambraces,config.studdedBody,config.greendHideChaps,config.mithArrow,config.mapleShortbow)){
+                    return true;
+                }
+                if(Equipment.count(config.mithArrow) > 1000){
+                    return true;
+                }
+            }
+        }
 
-        return config.getState() == Config.State.BRYOPHYTA
-                && !Equipment.containsAll(config.runeScimitar,config.runeFullHelm,config.runeKiteshield,config.runeChainbody,config.runePlatelegs,config.amuletOfPower,config.leatherBoots,config.leatherBoots,config.blackCape);
+        return false;
     }
 
     @Override
@@ -41,6 +61,8 @@ public class EquipGearBryophyta extends AbstractTask {
 
         // Withdraw new gear; TODO-turn to function
         List<nameQuantity> gear = new ArrayList<>();
+
+        // shared
         if(!Equipment.contains(config.amuletOfPower)) {
             gear.add(new nameQuantity(config.amuletOfPower, 1));
         }
@@ -50,24 +72,49 @@ public class EquipGearBryophyta extends AbstractTask {
         if(!Equipment.contains(config.leatherBoots)) {
             gear.add(new nameQuantity(config.leatherBoots, 1));
         }
-        if(!Equipment.contains(config.leatherGloves)) {
-            gear.add(new nameQuantity(config.leatherGloves, 1));
+
+        // melee
+        if(config.getCurFightingStyle() == Config.FightingStyle.MELEE) {
+            if (!Equipment.contains(config.leatherGloves)) {
+                gear.add(new nameQuantity(config.leatherGloves, 1));
+            }
+            if (!Equipment.contains(config.runeFullHelm)) {
+                gear.add(new nameQuantity(config.runeFullHelm, 1));
+            }
+            if (!Equipment.contains(config.runeChainbody)) {
+                gear.add(new nameQuantity(config.runeChainbody, 1));
+            }
+            if (!Equipment.contains(config.runeKiteshield)) {
+                gear.add(new nameQuantity(config.runeKiteshield, 1));
+            }
+            if (!Equipment.contains(config.runePlatelegs)) {
+                gear.add(new nameQuantity(config.runePlatelegs, 1));
+            }
+            if (!Equipment.contains(config.runeScimitar)) {
+                gear.add(new nameQuantity(config.runeScimitar, 1));
+            }
         }
-        if(!Equipment.contains(config.runeFullHelm)) {
-            gear.add(new nameQuantity(config.runeFullHelm, 1));
+        if(config.getCurFightingStyle() == Config.FightingStyle.RANGED){
+            if (!Equipment.contains(config.coif)) {
+                gear.add(new nameQuantity(config.coif, 1));
+            }
+            if (!Equipment.contains(config.studdedBody)) {
+                gear.add(new nameQuantity(config.studdedBody, 1));
+            }
+            if (!Equipment.contains(config.greendHideChaps)) {
+                gear.add(new nameQuantity(config.greendHideChaps, 1));
+            }
+            if (!Equipment.contains(config.mapleShortbow)) {
+                gear.add(new nameQuantity(config.mapleShortbow, 1));
+            }
+            if (Equipment.count(config.addyArrow) < 500) {
+                gear.add(new nameQuantity(config.addyArrow, 500));
+            }
+            if (!Equipment.contains(config.greendHideVambraces)) {
+                gear.add(new nameQuantity(config.greendHideVambraces, 1));
+            }
         }
-        if(!Equipment.contains(config.runeChainbody)) {
-            gear.add(new nameQuantity(config.runeChainbody, 1));
-        }
-        if(!Equipment.contains(config.runeKiteshield)) {
-            gear.add(new nameQuantity(config.runeKiteshield, 1));
-        }
-        if(!Equipment.contains(config.runePlatelegs)) {
-            gear.add(new nameQuantity(config.runePlatelegs, 1));
-        }
-        if(!Equipment.contains(config.runeScimitar)) {
-            gear.add(new nameQuantity(config.runeScimitar, 1));
-        }
+
         bm.WithdrawXItemsRandom(gear);
         bm.CloseBank();
 

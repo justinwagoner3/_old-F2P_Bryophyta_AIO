@@ -4,8 +4,11 @@ import config.Config;
 import dataStructures.nameQuantity;
 import methods.BankingMethods;
 import methods.CombatMethods;
+import methods.WalkingMethods;
 import org.dreambot.api.methods.Calculations;
 import org.dreambot.api.methods.container.impl.equipment.Equipment;
+import org.dreambot.api.methods.skills.Skill;
+import org.dreambot.api.methods.skills.Skills;
 import tasks.AbstractTask;
 
 import java.util.ArrayList;
@@ -15,6 +18,7 @@ public class EquipGearRats extends AbstractTask {
 
     BankingMethods bm = new BankingMethods();
     CombatMethods cm = new CombatMethods();
+    WalkingMethods wm = new WalkingMethods();
 
     // TODO - does not include scimitar; adding just the iron scimitar cause script to fail when reaching lvl 10, need if statement based on attack level for what should be wearing
     @Override
@@ -34,8 +38,15 @@ public class EquipGearRats extends AbstractTask {
 
             // range gear
             if(config.getCurFightingStyle() == Config.FightingStyle.RANGED) {
-                if(!Equipment.containsAll(config.leatherCowl,config.leatherBody,config.leatherChaps,config.ironArrow,config.leatherVambraces)){
-                    return true;
+                if(Skills.getRealLevel(Skill.RANGED) < 20) {
+                    if (!Equipment.containsAll(config.leatherCowl, config.leatherBody, config.leatherChaps, config.ironArrow, config.leatherVambraces)) {
+                        return true;
+                    }
+                }
+                else{
+                    if (!Equipment.containsAll(config.coif, config.leatherBody, config.studdedChaps, config.mithArrow, config.leatherVambraces)) {
+                        return true;
+                    }
                 }
             }
         }
@@ -83,24 +94,51 @@ public class EquipGearRats extends AbstractTask {
         }
         // range gear
         if(config.getCurFightingStyle() == Config.FightingStyle.RANGED){
-            if (!Equipment.contains(config.leatherCowl)) {
-                gear.add(new nameQuantity(config.leatherCowl, 1));
+            if(Skills.getRealLevel(Skill.RANGED) < 20) {
+                if (!Equipment.contains(config.leatherCowl)) {
+                    gear.add(new nameQuantity(config.leatherCowl, 1));
+                }
+                if (!Equipment.contains(config.leatherBody)) {
+                    gear.add(new nameQuantity(config.leatherBody, 1));
+                }
+                if (!Equipment.contains(config.leatherChaps)) {
+                    gear.add(new nameQuantity(config.leatherChaps, 1));
+                }
+                if (!Equipment.contains(config.ironArrow)) {
+                    gear.add(new nameQuantity(config.ironArrow, 5000));
+                }
+                if (!Equipment.contains(config.leatherVambraces)) {
+                    gear.add(new nameQuantity(config.leatherVambraces, 1));
+                }
+                if (!Equipment.contains(config.shortbow)) {
+                    gear.add(new nameQuantity(config.shortbow, 1));
+                }
             }
-            if (!Equipment.contains(config.leatherBody)) {
-                gear.add(new nameQuantity(config.leatherBody, 1));
+            else{
+                if (!Equipment.contains(config.coif)) {
+                    gear.add(new nameQuantity(config.coif, 1));
+                }
+                if (!Equipment.contains(config.leatherBody)) {
+                    gear.add(new nameQuantity(config.leatherBody, 1));
+                }
+                if (!Equipment.contains(config.studdedChaps)) {
+                    gear.add(new nameQuantity(config.studdedChaps, 1));
+                }
+                if (!Equipment.contains(config.mithArrow)) {
+                    gear.add(new nameQuantity(config.mithArrow, 5000));
+                }
+                if (!Equipment.contains(config.leatherVambraces)) {
+                    gear.add(new nameQuantity(config.leatherVambraces, 1));
+                }
+                if (!Equipment.contains(config.willowShortbow)) {
+                    gear.add(new nameQuantity(config.willowShortbow, 1));
+                }
             }
-            if (!Equipment.contains(config.leatherChaps)) {
-                gear.add(new nameQuantity(config.leatherChaps, 1));
-            }
-            if (!Equipment.contains(config.ironArrow)) {
-                gear.add(new nameQuantity(config.ironArrow, 5000));
-            }
-            if (!Equipment.contains(config.leatherVambraces)) {
-                gear.add(new nameQuantity(config.leatherVambraces, 1));
-            }
-            if (!Equipment.contains(config.shortbow)) {
-                gear.add(new nameQuantity(config.shortbow, 1));
-            }
+        }
+
+        // travel to a bank if not at one // TODO- figure out calculating closest bank
+        if(!config.grandExchangeArea.contains(getLocalPlayer())){
+            wm.Walk(config.grandExchangeArea,"Grand Exchange");
         }
 
         // withdraw all gear

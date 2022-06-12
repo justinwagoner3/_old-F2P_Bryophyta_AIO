@@ -7,6 +7,7 @@ import methods.CombatMethods;
 import methods.WalkingMethods;
 import org.dreambot.api.methods.Calculations;
 import org.dreambot.api.methods.container.impl.equipment.Equipment;
+import org.dreambot.api.methods.container.impl.equipment.EquipmentSlot;
 import tasks.AbstractTask;
 
 import java.util.ArrayList;
@@ -19,8 +20,29 @@ public class EquipGearMossGiants extends AbstractTask {
 
     @Override
     public boolean accept() {
-        return config.getState() == Config.State.MOSSGIANTS
-                && !Equipment.containsAll(config.runeScimitar,config.runeFullHelm,config.runeKiteshield,config.runeChainbody,config.runePlatelegs,config.amuletOfPower,config.leatherBoots,config.leatherBoots,config.blackCape);
+        if(config.getState() == Config.State.MOSSGIANTS){
+            // shared
+            if(!Equipment.containsAll(config.leatherBoots,config.amuletOfPower,config.blackCape)){
+                return true;
+            }
+            // melee
+            if(config.getCurFightingStyle() == Config.FightingStyle.MELEE){
+                if(!Equipment.containsAll(config.leatherGloves,config.runeFullHelm,config.runeKiteshield,config.runeChainbody,config.runePlatelegs,config.runeScimitar)){
+                    return true;
+                }
+            }
+            // range
+            if(config.getCurFightingStyle() == Config.FightingStyle.RANGED){
+                if(!Equipment.containsAll(config.coif,config.greendHideVambraces,config.studdedBody,config.greendHideChaps,config.mithArrow,config.mapleShortbow)){
+                    return true;
+                }
+                if(Equipment.count(config.mithArrow) > 1000){
+                    return true;
+                }
+            }
+        }
+
+        return false;
         // TODO - might want use equipnent. to put gear on too
     }
 
@@ -30,7 +52,14 @@ public class EquipGearMossGiants extends AbstractTask {
         config.setStatus("Equipping gear moss giants");
 
         // Travel to bank
-        wm.WalkToWildy(config.feroxEnclaveBank,"Ferox Enclave bank");
+        if(!config.feroxEnclave.contains(getLocalPlayer())) {
+            wm.WalkToWildy(config.feroxEnclaveBank, "Ferox Enclave bank");
+        }
+
+        // Check if need to not use so many arrows
+        if(Equipment.count(config.mithArrow) > 1000){
+            Equipment.unequip(EquipmentSlot.ARROWS);
+        }
 
         // Deposit everything
         bm.OpenBank();
@@ -84,7 +113,7 @@ public class EquipGearMossGiants extends AbstractTask {
             if (!Equipment.contains(config.mapleShortbow)) {
                 gear.add(new nameQuantity(config.mapleShortbow, 1));
             }
-            if (Equipment.count(config.mithArrow) < 500) {
+            if (Equipment.count(config.mithArrow) < 1000) {
                 gear.add(new nameQuantity(config.mithArrow, 1000));
             }
             if (!Equipment.contains(config.greendHideVambraces)) {

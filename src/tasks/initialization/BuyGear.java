@@ -9,9 +9,6 @@ import org.dreambot.api.methods.container.impl.bank.Bank;
 import org.dreambot.api.methods.container.impl.equipment.Equipment;
 import tasks.AbstractTask;
 
-import java.util.ArrayList;
-import java.util.Arrays;
-
 public class BuyGear extends AbstractTask {
 
     private WalkingMethods wm = new WalkingMethods();
@@ -29,9 +26,39 @@ public class BuyGear extends AbstractTask {
         else{
             if(config.isInitBankOpened()) {
                 for (int i = 0; i < config.gearList.size(); i++) {
-                    if (!Bank.contains(config.gearList.get(i)) && !Inventory.contains(config.gearList.get(i)) && !Equipment.contains(config.gearList.get(i))) {
-                        log("Needs to buy: " + config.gearList.get(i));
-                        return true;
+                    // lobster and swordfish need to be above 25 to do things
+                    if(config.gearList.get(i).equals(config.lobster)) {
+                        if (Bank.count(config.lobster) + Inventory.count(config.lobster) + Equipment.count(config.lobster) < 25) {
+                            log("Needs to buy: " + config.gearList.get(i));
+                            return true;
+                        }
+                    }
+                    if(config.gearList.get(i).equals(config.swordfish)) {
+                        if (Bank.count(config.swordfish) + Inventory.count(config.swordfish) + Equipment.count(config.swordfish) < 25) {
+                            log("Needs to buy: " + config.gearList.get(i));
+                            return true;
+                        }
+                    }
+                    // mith arrows needs to be above 1000 to do things
+                    if(config.gearList.get(i).equals(config.mithArrow)) {
+                        if (Bank.count(config.mithArrow) + Inventory.count(config.mithArrow) + Equipment.count(config.mithArrow) < 1000) {
+                            log("Needs to buy: " + config.gearList.get(i));
+                            return true;
+                        }
+                    }
+                    // addy arrows needs to be above 500 to do things
+                    else if(config.gearList.get(i).equals(config.addyArrow)){
+                        if (Bank.count(config.addyArrow) + Inventory.count(config.addyArrow) + Equipment.count(config.addyArrow) < 500) {
+                            log("Needs to buy: " + config.gearList.get(i));
+                            return true;
+                        }
+                    }
+                    // everything else is just a single check
+                    else {
+                        if (!Bank.contains(config.gearList.get(i)) && !Inventory.contains(config.gearList.get(i)) && !Equipment.contains(config.gearList.get(i))) {
+                            log("Needs to buy: " + config.gearList.get(i));
+                            return true;
+                        }
                     }
                 }
             }
@@ -102,7 +129,7 @@ public class BuyGear extends AbstractTask {
             gem.BuyGearIfNecessary(config.oakShortbow,1);
             gem.BuyGearIfNecessary(config.shortbow,1);
             gem.BuyGearIfNecessary(config.addyArrow,Calculations.random(1000,2000));
-            gem.BuyGearIfNecessary(config.mithArrow,Calculations.random(3000,5000));
+            gem.BuyGearIfNecessary(config.mithArrow,Calculations.random(5000,7000));
             gem.BuyGearIfNecessary(config.ironArrow,Calculations.random(1000,2000));
             gem.BuyGearIfNecessary(config.greendHideVambraces,1);
             gem.BuyGearIfNecessary(config.leatherVambraces,1);

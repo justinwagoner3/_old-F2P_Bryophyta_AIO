@@ -1,9 +1,10 @@
  * TOP TODOs:
-    * HopWorlds
-    * SellLoot fix
+    * double hops wilderness ditch
+        * maybe fixed now
+    * withdraw all for things like arrows when not in wilderness
+    * basically everything inside a node should be a function
+        * functions should handle all of the if-else checking, not the node tasks
 
- * Sell Loot:
-    * create a sellable array since some items can't be sold f2p
 
  * Turn run on
     * should be it's own Node, not part of attacking a monster

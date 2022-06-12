@@ -30,13 +30,17 @@ public class SellLoot extends AbstractTask {
         bm.DepositAllInventory();
 
         // from list of things looted
-        bm.WithdrawAllItemsRandom(config.getCurLootItems());
+        bm.WithdrawAllItemsRandom(config.getAllSellableLootList());
+        bm.WithdrawAllButOneItemsRandom(config.getAllButOneSellableLootList());
 
         // sell everything
         gem.OpenGE();
         gem.SellAllItemsInInv();
         gem.CloseGE();
 
+        bm.OpenBank();
+        bm.DepositAllInventory();
+        bm.CloseBank();
 
         return Calculations.random(600,1200);
     }
