@@ -4,6 +4,7 @@ import config.Config;
 import methods.WalkingMethods;
 import org.dreambot.api.methods.Calculations;
 import org.dreambot.api.methods.container.impl.Inventory;
+import org.dreambot.api.methods.container.impl.bank.BankLocation;
 import org.dreambot.api.methods.interactive.Players;
 import tasks.AbstractTask;
 
@@ -33,11 +34,11 @@ public class TravelToLumbridgeBank extends AbstractTask {
         config.setStatus("Traveling to Lumbridge bank");
         if(config.giantFrogArea.contains(getLocalPlayer()) || config.largeGiantRatArea.contains(getLocalPlayer())){
             wm.Walk(config.lumbridgeGraveyard,"lumb graveyard");
-            wm.Walk(config.lumbridgeBank, "Lumbridge bank");
+            wm.Walk(BankLocation.LUMBRIDGE.getArea(20), "Lumbridge bank");
         }
         else {
             wm.TeleHome();
-            wm.Walk(config.lumbridgeBank, "Lumbridge bank");
+            wm.Walk(BankLocation.LUMBRIDGE.getArea(20), "Lumbridge bank");
         }
         return Calculations.random(600,1200);
 

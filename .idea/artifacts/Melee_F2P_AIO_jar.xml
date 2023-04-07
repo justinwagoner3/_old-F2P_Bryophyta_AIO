@@ -1,8 +1,0 @@
-<component name="ArtifactManager">
-  <artifact type="jar" name="Melee_F2P_AIO:jar">
-    <output-path>$USER_HOME$/DreamBot/Scripts</output-path>
-    <root id="archive" name="Melee_F2P_AIO.jar">
-      <element id="module-output" name="Melee_F2P_AIO" />
-    </root>
-  </artifact>
-</component>

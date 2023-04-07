@@ -72,7 +72,6 @@ public class WithdrawInvFrogs extends AbstractTask {
         bm.OpenBank();
         bm.DepositAllInventory();
 
-
         // withdraw items
         bm.WithdrawXItemsRandom(inv);
         bm.CloseBank();

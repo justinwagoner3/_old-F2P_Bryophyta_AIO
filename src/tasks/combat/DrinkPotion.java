@@ -28,14 +28,11 @@ public class DrinkPotion extends AbstractTask {
         if(Skills.getRealLevel(Skill.STRENGTH) >= 30){
             config.setNextDrinkPotionBoostedRealDiff(Calculations.random(0,3));
         }
-        else if(Skills.getRealLevel(Skill.STRENGTH) >= 50){
+        if(Skills.getRealLevel(Skill.STRENGTH) >= 50){
             config.setNextDrinkPotionBoostedRealDiff(Calculations.random(0,4));
         }
-        else if(Skills.getRealLevel(Skill.STRENGTH) >= 70){
+        if(Skills.getRealLevel(Skill.STRENGTH) >= 70){
             config.setNextDrinkPotionBoostedRealDiff(Calculations.random(0,5));
-        }
-        else{
-            // nothing
         }
         return Calculations.random(600,1200);
     }

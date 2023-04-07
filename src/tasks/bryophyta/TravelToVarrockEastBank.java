@@ -25,7 +25,7 @@ public class TravelToVarrockEastBank extends AbstractTask {
         config.setStatus("Traveling to Varrock E Bank");
         if(!config.bryophytaLairEntrance.contains(getLocalPlayer())) {
             GameObject rockPile = GameObjects.closest(o -> o != null && o.getName().equals("Rock Pile"));
-            if (rockPile != null) {
+            if (rockPile != null && rockPile.isOnScreen()) {
                 log("found rock pile");
                 while (!rockPile.interact("Clamber")) {
                     sleepUntil(() -> config.bryophytaLairEntrance.contains(getLocalPlayer()), 5000);

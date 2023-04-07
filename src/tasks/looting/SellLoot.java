@@ -16,7 +16,7 @@ public class SellLoot extends AbstractTask {
     // TODO- change condition later and will need a different array of sellable items that does not include cash, bones, keys
     @Override
     public boolean accept() {
-        return config.isInitBankOpened() && Bank.count(config.coins) < 10000 && Inventory.count(config.coins) < 10000;
+        return config.isInitBankOpened() && Bank.count(config.coins) < 40000 && Inventory.count(config.coins) < 40000;
     }
 
     @Override

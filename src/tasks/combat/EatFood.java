@@ -11,8 +11,7 @@ public class EatFood extends AbstractTask {
     private CombatMethods cm = new CombatMethods();
     @Override
     public boolean accept() {
-        return
-                Players.localPlayer().getHealthPercent() <= config.getNextEatAtPercentage()
+        return Players.localPlayer().getHealthPercent() <= config.getNextEatAtPercentage()
                 && Inventory.contains(config.lobster);
     }
 

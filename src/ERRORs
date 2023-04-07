@@ -1,10 +1,3 @@
- * WalkToWildy:
-    * starts walking west towards edgeville, then east to hop the line every time
-
- * Loot:
-    * While fighting frogs wanted to loot a coin in lumbridge castle
-        * should just not have coins apart of the loot list when fighting rats/frogs
-
  * EscapePKer
     * insta-logs back in and then sleeps instead of sleeping while logged out
     * log out is also broken - stops the player from running
@@ -12,15 +5,5 @@
 
  * EscapePKer
     * (found online) You should have a thread checking for players near you instead, that will work better
-
- * EscapePker
-    * got attacked by a deadman i think, didn't register skulled
-
- * AttackMonster
-    * was trying to attack a rat... had select to attack it and was running towards it, but was stuck behind something
-    * to fix it i had to manually step to a new tile and then start the script again
-    * think this happens when leveling up at the perfect time? noticed i increased an hp lvl the second time it happened
-        * noticed again increased level
-    * FIX: double check healthbar appears if not then click again
 
  * drinks potion, attacks different monster when orig monster was right next to me still

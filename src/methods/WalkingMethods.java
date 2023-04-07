@@ -39,14 +39,16 @@ public class WalkingMethods extends AbstractMethod {
         log("[m] Walk To Wildy " + location);
         // check if in ferox enclave
         if(config.feroxEnclave.contains((getLocalPlayer()))){
-            while(!config.feroxEnclaveExteriorNorth.contains(getLocalPlayer().getTile())) {
-                Walk(config.feroxEnclaveInteriorNorth,"Ferox enclave north");
+            while(!config.feroxEnclaveExteriorNorth.contains(getLocalPlayer())) {
                 GameObject northBarrier = GameObjects.closest(object -> object.getName() != null && object.getName().equals("Barrier"));
                 if(northBarrier != null) {
                     if (northBarrier.interact("Pass-Through")) {
                         sleepUntil(() -> Dialogues.canContinue() || config.feroxEnclaveExteriorNorth.contains(getLocalPlayer()), Calculations.random(3000,4000));
                         dm.FeroxEnclaveMessage();
                     }
+                }
+                else {
+                    Walk(config.feroxEnclaveInteriorNorth, "Ferox enclave north");
                 }
             }
             Walk(destination,location);
@@ -124,5 +126,20 @@ public class WalkingMethods extends AbstractMethod {
                 sleepUntil(() -> config.varrockSewersManholeArea.contains(getLocalPlayer()), Calculations.random(2000,3000));
             }
         }
+    }
+
+    public boolean EnableRun(){
+        log("[m] Enable Run");
+        // run not enabled
+        if(!Walking.isRunEnabled()){
+            // have enough energy
+            if (Walking.getRunEnergy() > config.getNextRunEnergyPercentage()) {
+                if(Walking.toggleRun()){
+                    config.setNextRunEnergyPercentage(Calculations.random(1,12));
+                    sleepUntil(Walking::isRunEnabled,Calculations.random(500));
+                }
+            }
+        }
+        return Walking.isRunEnabled();
     }
 }

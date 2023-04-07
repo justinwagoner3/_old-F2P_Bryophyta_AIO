@@ -2,7 +2,6 @@ package config;
 
 import org.dreambot.api.methods.combat.CombatStyle;
 import org.dreambot.api.methods.map.Area;
-import org.dreambot.api.methods.map.Tile;
 import org.dreambot.api.methods.skills.Skill;
 import org.dreambot.api.methods.skills.Skills;
 import org.dreambot.api.utilities.Timer;
@@ -82,7 +81,7 @@ public class Config {
             this.runeKiteshield,this.ironScimitar,this.blackScimitar,this.mithScimitar,this.addyScimitar,this.runeScimitar,this.bronzeAxe};
     public String[] rangedGearList = {this.leatherCowl,this.coif,this.studdedBody,this.hardleatherBody,this.leatherBody,
             this.greendHideChaps,this.studdedChaps,this.leatherChaps,this.mapleShortbow,this.willowShortbow,this.oakShortbow,this.shortbow,
-            this.addyArrow,this.mithArrow,this.ironArrow,this.greendHideVambraces,this.leatherVambraces};
+            this.addyArrow,this.mithArrow,this.ironArrow,this.greendHideVambraces,this.leatherVambraces,this.knife};
     //TODO- prolly shouldn't be here
     public void ConfigureGearList(){
         for(String i : sharedGearArray){
@@ -148,6 +147,7 @@ public class Config {
 
 
     // locations
+    public final Area varrockChurch = new Area(3252,3472,3259,3484);
     public final Area deathsRoom = new Area(13002,5059,13012,5066);
     public final Area varrockSewerSouthLadderArea = new Area(3236,9857,3237,9860);
     public final Area bryophytaLairEntrance = new Area(3173,9896,3175,9902);
@@ -260,6 +260,7 @@ public class Config {
     public final String deathRune = "Death rune"; //
 
     // items
+    public final String knife = "Knife";
     public final String coins = "Coins";
     public final String mossyKey = "Mossy key"; //
     public final String uncutRuby = "Uncut ruby"; //

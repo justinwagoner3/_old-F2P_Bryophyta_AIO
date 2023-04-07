@@ -1,20 +1,18 @@
 import config.Config;
+import methods.BankingMethods;
 import methods.CombatMethods;
 import org.dreambot.api.Client;
 import org.dreambot.api.data.GameState;
 import org.dreambot.api.methods.Calculations;
-import org.dreambot.api.methods.combat.Combat;
-import org.dreambot.api.methods.container.impl.Inventory;
 import org.dreambot.api.methods.container.impl.bank.Bank;
-import org.dreambot.api.methods.grandexchange.GrandExchange;
 import org.dreambot.api.methods.input.Camera;
+import org.dreambot.api.methods.interactive.Players;
 import org.dreambot.api.methods.prayer.Prayer;
-import org.dreambot.api.methods.prayer.Prayers;
+import org.dreambot.api.methods.settings.PlayerSettings;
 import org.dreambot.api.methods.skills.Skill;
 import org.dreambot.api.methods.skills.SkillTracker;
 import org.dreambot.api.methods.skills.Skills;
 import org.dreambot.api.methods.tabs.Tab;
-import org.dreambot.api.methods.tabs.Tabs;
 import org.dreambot.api.methods.walking.impl.Walking;
 import org.dreambot.api.methods.walking.pathfinding.impl.obstacle.impl.PassableObstacle;
 import org.dreambot.api.script.Category;
@@ -45,6 +43,7 @@ import tasks.rats.EquipGearRats;
 import tasks.rats.WithdrawInvRats;
 import tasks.shared_rats_frogs.TravelToLumbridgeBank;
 import tasks.rats.TravelToRats;
+import tasks.utility.EnableRun;
 import tasks.utility.StartClockOnLogIn;
 import tasks.utility.StopClockOnLogOut;
 
@@ -58,13 +57,13 @@ import java.io.IOException;
 import java.lang.reflect.InvocationTargetException;
 
 @ScriptManifest(category = Category.COMBAT,
-        name = "Melee_F2P_AIO",
-        description = "Buy gear. Train melee. Upgrade gear. Repeat.",
+        name = "Jwagg's F2P Bryophyta AIO",
+        description = "Choose melee and/or ranged. Buy gear. Train. Upgrade Gear. Fight Bryophyta.",
         author = "Jwagg",
         version = 1.1)
 
 
-public class Melee_F2P_AIO extends TaskScript implements InventoryListener, GameStateListener, ChatListener {
+public class F2P_Bryophyta_AIO extends TaskScript implements InventoryListener, GameStateListener, ChatListener {
     Config config = Config.getConfig();
     private Image attImage;
     private Image strImage;
@@ -78,6 +77,7 @@ public class Melee_F2P_AIO extends TaskScript implements InventoryListener, Game
     private long profit = 0;
     private boolean isRunning = false;
     private CombatMethods cm = new CombatMethods();
+    private BankingMethods bm = new BankingMethods();
 
     @Override
     public void onStart() {
@@ -153,6 +153,7 @@ public class Melee_F2P_AIO extends TaskScript implements InventoryListener, Game
                     new Loot(),
                     new BuryBones(),
                     new AttackMonster(),
+                    new EnableRun(),
                     new MajorLevel(),
                     new UpgradeScimitar(),
                     new UpgradeShortbowAndCoif(),
@@ -177,6 +178,13 @@ public class Melee_F2P_AIO extends TaskScript implements InventoryListener, Game
             );
             log("Nodes Added");
 
+            // close bank, if started with bank open
+            if(Bank.isOpen()){
+                log("Closing bank");
+                config.setInitBankOpened(true);
+                bm.CloseBank();
+            }
+
             // zoom all the way out
             log("Setting zoom");
             if(Camera.getZoom() != 181) {
@@ -190,35 +198,32 @@ public class Melee_F2P_AIO extends TaskScript implements InventoryListener, Game
             // turn on auto-retaliate
             log("Check auto-retaliate");
             cm.TurnAutoRetaliateOn();
-/*
-            if(!Combat.isAutoRetaliateOn()){
-                Combat.toggleAutoRetaliate(true);
-            }
-*/
+            sleep(Calculations.random(500,1100));
 
             // turn prayers off
             log("Turn all prayers off");
             cm.TurnPrayerOff(Prayer.PROTECT_ITEM);
             cm.TurnPrayerOff(Prayer.PROTECT_FROM_MAGIC);
+            sleep(Calculations.random(500,1100));
 
             // check equipment
-            while(!cm.OpenTab(Tab.EQUIPMENT));
-/*
-            if(Tabs.open(Tab.EQUIPMENT)){
-                sleepUntil(() -> Tabs.isOpen(Tab.EQUIPMENT), Calculations.random(2000,3000));
+            while(!cm.OpenTab(Tab.EQUIPMENT)){
+                sleep(Calculations.random(500,1100));
             }
-*/
+            sleep(Calculations.random(500,1100));
 
             // check inventory
-            while(!cm.OpenTab(Tab.INVENTORY));
-/*
-            if(Tabs.open(Tab.INVENTORY)){
-                sleepUntil(() -> Tabs.isOpen(Tab.INVENTORY), Calculations.random(2000,3000));
+            while(!cm.OpenTab(Tab.INVENTORY)){
+                sleep(Calculations.random(500,1100));
             }
-*/
+            sleep(Calculations.random(500,1100));
+
         }
     }
 
+    public void SetPlayerSettings(){
+
+    }
 
     @Override
     public void onItemChange(Item[] items) {

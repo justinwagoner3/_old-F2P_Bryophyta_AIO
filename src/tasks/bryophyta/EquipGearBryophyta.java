@@ -33,10 +33,10 @@ public class EquipGearBryophyta extends AbstractTask {
             }
             // range
             if(config.getCurFightingStyle() == Config.FightingStyle.RANGED){
-                if(!Equipment.containsAll(config.coif,config.greendHideVambraces,config.studdedBody,config.greendHideChaps,config.mithArrow,config.mapleShortbow)){
+                if(!Equipment.containsAll(config.coif,config.greendHideVambraces,config.studdedBody,config.greendHideChaps,config.addyArrow,config.mapleShortbow)){
                     return true;
                 }
-                if(Equipment.count(config.mithArrow) > 1000){
+                if(Equipment.count(config.addyArrow) < 500 && (config.grandExchangeArea.contains(getLocalPlayer()) || config.varrockEastBank.contains(getLocalPlayer()))){
                     return true;
                 }
             }
@@ -53,7 +53,9 @@ public class EquipGearBryophyta extends AbstractTask {
         config.setStatus("Equipping gear Bryophyta");
 
         // Travel to bank
-        wm.Walk(config.grandExchangeArea,"GE");
+        if(!config.varrockEastBank.contains(getLocalPlayer())) {
+            wm.Walk(config.grandExchangeArea, "GE");
+        }
 
         // Deposit everything
         bm.OpenBank();

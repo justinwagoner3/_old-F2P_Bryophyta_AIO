@@ -2,8 +2,17 @@
     * double hops wilderness ditch
         * maybe fixed now
     * withdraw all for things like arrows when not in wilderness
-    * basically everything inside a node should be a function
-        * functions should handle all of the if-else checking, not the node tasks
+    * Bank.openClosest() can be used
+
+ * Randomize walking (maybe use this, but do other research):
+{{{
+  while (bankLocation.getCenter().distance() > 6) {
+            if (Walking.shouldWalk(Calculations.random(2, 7))) {
+                Walking.walk(bankLocation.getCenter().getRandomizedTile(1));
+                sleep(50, 1500);
+            }
+        }
+}}
 
 
  * Turn run on

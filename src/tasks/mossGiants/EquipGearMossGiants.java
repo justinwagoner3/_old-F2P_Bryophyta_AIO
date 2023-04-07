@@ -36,14 +36,17 @@ public class EquipGearMossGiants extends AbstractTask {
                 if(!Equipment.containsAll(config.coif,config.greendHideVambraces,config.studdedBody,config.greendHideChaps,config.mithArrow,config.mapleShortbow)){
                     return true;
                 }
-                if(Equipment.count(config.mithArrow) > 1000){
+                if(Equipment.count(config.mithArrow) > 2000){
+                    return true;
+                }
+                if(Equipment.count(config.mithArrow) < 1000 && config.feroxEnclave.contains(getLocalPlayer())){
                     return true;
                 }
             }
         }
 
         return false;
-        // TODO - might want use equipnent. to put gear on too
+        // TODO - might want use equipment. to put gear on too
     }
 
     @Override
@@ -57,9 +60,10 @@ public class EquipGearMossGiants extends AbstractTask {
         }
 
         // Check if need to not use so many arrows
-        if(Equipment.count(config.mithArrow) > 1000){
+        if(Equipment.count(config.mithArrow) > 2000){
             Equipment.unequip(EquipmentSlot.ARROWS);
         }
+
 
         // Deposit everything
         bm.OpenBank();

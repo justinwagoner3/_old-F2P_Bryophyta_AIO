@@ -73,9 +73,7 @@ public class EquipGearFrogs extends AbstractTask {
         }
 
         // check equipment
-        if(!Tabs.isOpen(Tab.EQUIPMENT)) {
-            Tabs.open(Tab.EQUIPMENT);
-        }
+        cm.OpenTab(Tab.EQUIPMENT);
 
         // Deposit everything
         bm.OpenBank();

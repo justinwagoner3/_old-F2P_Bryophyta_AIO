@@ -28,7 +28,7 @@ public class WithdrawInvBryophyta extends AbstractTask {
                 }
             }
             if(config.getCurFightingStyle() == Config.FightingStyle.RANGED){
-                if(!Inventory.contains(config.swordfish,config.mossyKey,config.bronzeAxe,config.ironScimitar)){
+                if(!Inventory.contains(config.mossyKey,config.bronzeAxe,config.ironScimitar) || Inventory.count(config.swordfish) < 20){
                     return true;
                 }
             }
@@ -41,6 +41,19 @@ public class WithdrawInvBryophyta extends AbstractTask {
     public int execute() {
         log("[T] Withdrawing inv Bryophyta");
         config.setStatus("Withdrawing inv Bryophyta");
+        // TODO- maybe put this somewhere else
+        // check if we need to eat first
+        if(getLocalPlayer().getHealthPercent() <= 95){
+            log("Eating before withdrawing");
+            bm.OpenBank();
+            bm.WithdrawXItem(config.lobster,10);
+            bm.CloseBank();
+            while(getLocalPlayer().getHealthPercent() <= 95){
+                Inventory.interact(config.lobster,"Eat");
+                sleep(Calculations.random(800,1400));
+            }
+        }
+
         // create list to withdraw
         // TODO - grab mithril armor, and in SwitchToFrogs maybe check if necessary to go back to bank or not
         List<nameQuantity> inv = new ArrayList<>();
@@ -54,7 +67,7 @@ public class WithdrawInvBryophyta extends AbstractTask {
             inv.add(new nameQuantity(config.swordfish, 25));
             inv.add(new nameQuantity(config.bronzeAxe, 1));
             inv.add(new nameQuantity(config.mossyKey, 3));
-            inv.add(new nameQuantity(config.ironScimitar, 1));
+            inv.add(new nameQuantity(config.knife, 1));
         }
 
 

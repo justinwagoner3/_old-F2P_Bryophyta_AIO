@@ -2,6 +2,7 @@ package tasks.combat;
 
 import config.Config;
 import methods.BankingMethods;
+import methods.CombatMethods;
 import methods.WalkingMethods;
 import org.dreambot.api.methods.Calculations;
 import org.dreambot.api.methods.combat.Combat;
@@ -12,6 +13,7 @@ import org.dreambot.api.methods.prayer.Prayer;
 import org.dreambot.api.methods.prayer.Prayers;
 import org.dreambot.api.methods.skills.Skill;
 import org.dreambot.api.methods.skills.Skills;
+import org.dreambot.api.methods.tabs.Tab;
 import org.dreambot.api.methods.walking.impl.Walking;
 import org.dreambot.api.methods.world.World;
 import org.dreambot.api.methods.world.Worlds;
@@ -26,17 +28,20 @@ public class EscapeBitchAssPker extends AbstractTask {
 
     private WalkingMethods wm = new WalkingMethods();
     private BankingMethods bm = new BankingMethods();
+    private CombatMethods cm = new CombatMethods();
 
     // TODO - should activate when north of wilderness and when not in the ferox enclave
     @Override
     public boolean accept() {
-        List<Player> allPlayers = Players.all(p -> p != null && (p.getSkullIcon() != -1 && Math.abs(p.getLevel()-getLocalPlayer().getLevel()) <= 40) || (p.getInteractingCharacter() != null && p.getInteractingCharacter().equals(getLocalPlayer())));
-        if(!allPlayers.isEmpty() && config.getState() == Config.State.MOSSGIANTS){ // TODO - change to north of wildy
-            return true;
+        if(getLocalPlayer().getY() > config.edgevilleWildernessDitchNorthArea.getY()) {
+            List<Player> allPlayers = Players.all(p -> p != null && (p.getSkullIcon() != -1 && Math.abs(p.getLevel() - getLocalPlayer().getLevel()) <= 40) || (p.getInteractingCharacter() != null && p.getInteractingCharacter().equals(getLocalPlayer())));
+            if (!allPlayers.isEmpty() && config.getState() == Config.State.MOSSGIANTS) { // TODO - change to north of wildy
+                return true;
+            } else {
+                return false;
+            }
         }
-        else {
-            return false;
-        }
+        return false;
     }
 
     @Override
@@ -117,12 +122,9 @@ public class EscapeBitchAssPker extends AbstractTask {
         }
 
         // turn prayers off
-        if (Prayers.isActive(Prayer.PROTECT_ITEM)) {
-            Prayers.toggle(false,Prayer.PROTECT_ITEM);
-        }
-        if (Prayers.isActive(Prayer.PROTECT_FROM_MAGIC)) {
-            Prayers.toggle(false,Prayer.PROTECT_FROM_MAGIC);
-        }
+        cm.OpenTab(Tab.PRAYER);
+        cm.TurnPrayerOff(Prayer.PROTECT_ITEM);
+        cm.TurnPrayerOff(Prayer.PROTECT_FROM_MAGIC);
         sleep(Calculations.random(1000,2000));
 
         // reset tele blocked

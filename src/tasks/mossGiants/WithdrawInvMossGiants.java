@@ -53,10 +53,10 @@ public class WithdrawInvMossGiants extends AbstractTask {
         bm.OpenBank();
         bm.DepositAllInventory();
 
-
         // withdraw items
         bm.WithdrawXItemsRandom(inv);
         bm.CloseBank();
+
         return Calculations.random(600,1200);
     }
 

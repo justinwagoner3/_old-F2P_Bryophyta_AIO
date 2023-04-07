@@ -39,9 +39,16 @@ public class BuyGear extends AbstractTask {
                             return true;
                         }
                     }
+                    // str pot needs to be above 20 to do things
+                    if(config.gearList.get(i).equals(config.strPot4)) {
+                        if (Bank.count(config.strPot4) + Inventory.count(config.strPot4) + Equipment.count(config.strPot4) < 20) {
+                            log("Needs to buy: " + config.gearList.get(i));
+                            return true;
+                        }
+                    }
                     // mith arrows needs to be above 1000 to do things
                     if(config.gearList.get(i).equals(config.mithArrow)) {
-                        if (Bank.count(config.mithArrow) + Inventory.count(config.mithArrow) + Equipment.count(config.mithArrow) < 1000) {
+                        if ((Bank.count(config.mithArrow) + Inventory.count(config.mithArrow) + Equipment.count(config.mithArrow) < 1000) && !config.mossGiantWildernessArea.getCenter().getArea(100).contains(getLocalPlayer())) {
                             log("Needs to buy: " + config.gearList.get(i));
                             return true;
                         }
@@ -66,6 +73,8 @@ public class BuyGear extends AbstractTask {
         return false;
     }
 
+    // TODO - in order to get away from using while loops, will have to break apart some of this logic into different tasks
+    // if it fails at certain points can cause weird things to happen
     @Override
     public int execute() {
         log("[T] Buying Gear");
@@ -73,66 +82,72 @@ public class BuyGear extends AbstractTask {
         // travel to the GE
         wm.Walk(config.grandExchangeArea,"GE");
 
-        // Open bank, deposit all inv and gear, withdraw cash stack
-        bm.OpenBank();
-        bm.DepositAllInventory();
-        bm.DepositAllGear();
-        bm.WithdrawOnlyCoins();
-        bm.CloseBank();
+        // Open bank, deposit all inv if necessary, withdraw cash stack if necessary
+        if(Bank.contains(config.coins) || !Inventory.onlyContains(config.coins)) {
+            bm.OpenBank();
+            if (!Inventory.onlyContains(config.coins)) {
+                bm.DepositAllInventory();
+            }
+            if (Bank.contains(config.coins)) {
+                bm.WithdrawAllOfOneItem(config.coins);
+            }
+            bm.CloseBank();
+        }
 
         // open ge, buy gear, deposit it all in bank
         gem.OpenGE();
 
         // TODO - fix how i buy items so can just pass an array to this function and can randomize order bought
         // shared
-        gem.BuyGearIfNecessary(config.amuletOfPower, 1);
-        gem.BuyGearIfNecessary(config.blackCape, 1);
-        gem.BuyGearIfNecessary(config.leatherBoots, 1);
-        gem.BuyGearIfNecessary(config.lobster, Calculations.random(200,300));
-        gem.BuyGearIfNecessary(config.swordfish, Calculations.random(100,150));
+        gem.BuyGearIfNecessarySingleItem(config.amuletOfPower);
+        gem.BuyGearIfNecessarySingleItem(config.blackCape);
+        gem.BuyGearIfNecessarySingleItem(config.leatherBoots);
+        gem.BuyGearIfNecessaryMultipleOfItem(config.lobster,25, Calculations.random(200,300));
+        gem.BuyGearIfNecessaryMultipleOfItem(config.swordfish,25, Calculations.random(100,150));
 
         // melee
         if(config.isMeleeSelected()) {
-            gem.BuyGearIfNecessary(config.ironPlatebody, 1);
-            gem.BuyGearIfNecessary(config.ironPlatelegs, 1);
-            gem.BuyGearIfNecessary(config.ironFullHelm, 1);
-            gem.BuyGearIfNecessary(config.mithPlatebody, 1);
-            gem.BuyGearIfNecessary(config.mithPlatelegs, 1);
-            gem.BuyGearIfNecessary(config.mithFullHelm, 1);
-            gem.BuyGearIfNecessary(config.runeChainbody, 1);
-            gem.BuyGearIfNecessary(config.runePlatelegs, 1);
-            gem.BuyGearIfNecessary(config.runeFullHelm, 1);
-            gem.BuyGearIfNecessary(config.ironKiteshield, 1);
-            gem.BuyGearIfNecessary(config.mithKiteshield, 1);
-            gem.BuyGearIfNecessary(config.runeKiteshield, 1);
-            gem.BuyGearIfNecessary(config.ironScimitar, 1);
-            gem.BuyGearIfNecessary(config.blackScimitar, 1);
-            gem.BuyGearIfNecessary(config.mithScimitar, 1);
-            gem.BuyGearIfNecessary(config.addyScimitar, 1);
-            gem.BuyGearIfNecessary(config.runeScimitar, 1);
-            gem.BuyGearIfNecessary(config.leatherGloves, 1);
-            gem.BuyGearIfNecessary(config.strPot4, Calculations.random(100, 200));
+            gem.BuyGearIfNecessarySingleItem(config.ironPlatebody);
+            gem.BuyGearIfNecessarySingleItem(config.ironPlatelegs);
+            gem.BuyGearIfNecessarySingleItem(config.ironFullHelm);
+            gem.BuyGearIfNecessarySingleItem(config.mithPlatebody);
+            gem.BuyGearIfNecessarySingleItem(config.mithPlatelegs);
+            gem.BuyGearIfNecessarySingleItem(config.mithFullHelm);
+            gem.BuyGearIfNecessarySingleItem(config.runeChainbody);
+            gem.BuyGearIfNecessarySingleItem(config.runePlatelegs);
+            gem.BuyGearIfNecessarySingleItem(config.runeFullHelm);
+            gem.BuyGearIfNecessarySingleItem(config.ironKiteshield);
+            gem.BuyGearIfNecessarySingleItem(config.mithKiteshield);
+            gem.BuyGearIfNecessarySingleItem(config.runeKiteshield);
+            gem.BuyGearIfNecessarySingleItem(config.ironScimitar);
+            gem.BuyGearIfNecessarySingleItem(config.blackScimitar);
+            gem.BuyGearIfNecessarySingleItem(config.mithScimitar);
+            gem.BuyGearIfNecessarySingleItem(config.addyScimitar);
+            gem.BuyGearIfNecessarySingleItem(config.runeScimitar);
+            gem.BuyGearIfNecessarySingleItem(config.leatherGloves);
+            gem.BuyGearIfNecessaryMultipleOfItem(config.strPot4,20,Calculations.random(100, 200));
         }
 
         // ranged
         if(config.isRangedSelected()) {
-            gem.BuyGearIfNecessary(config.leatherCowl,1);
-            gem.BuyGearIfNecessary(config.coif,1);
-            gem.BuyGearIfNecessary(config.studdedBody,1);
-            gem.BuyGearIfNecessary(config.hardleatherBody,1);
-            gem.BuyGearIfNecessary(config.leatherBody,1);
-            gem.BuyGearIfNecessary(config.greendHideChaps,1);
-            gem.BuyGearIfNecessary(config.studdedChaps,1);
-            gem.BuyGearIfNecessary(config.leatherChaps,1);
-            gem.BuyGearIfNecessary(config.mapleShortbow,1);
-            gem.BuyGearIfNecessary(config.willowShortbow,1);
-            gem.BuyGearIfNecessary(config.oakShortbow,1);
-            gem.BuyGearIfNecessary(config.shortbow,1);
-            gem.BuyGearIfNecessary(config.addyArrow,Calculations.random(1000,2000));
-            gem.BuyGearIfNecessary(config.mithArrow,Calculations.random(5000,7000));
-            gem.BuyGearIfNecessary(config.ironArrow,Calculations.random(1000,2000));
-            gem.BuyGearIfNecessary(config.greendHideVambraces,1);
-            gem.BuyGearIfNecessary(config.leatherVambraces,1);
+            gem.BuyGearIfNecessarySingleItem(config.leatherCowl);
+            gem.BuyGearIfNecessarySingleItem(config.coif);
+            gem.BuyGearIfNecessarySingleItem(config.studdedBody);
+            gem.BuyGearIfNecessarySingleItem(config.hardleatherBody);
+            gem.BuyGearIfNecessarySingleItem(config.leatherBody);
+            gem.BuyGearIfNecessarySingleItem(config.greendHideChaps);
+            gem.BuyGearIfNecessarySingleItem(config.studdedChaps);
+            gem.BuyGearIfNecessarySingleItem(config.leatherChaps);
+            gem.BuyGearIfNecessarySingleItem(config.mapleShortbow);
+            gem.BuyGearIfNecessarySingleItem(config.willowShortbow);
+            gem.BuyGearIfNecessarySingleItem(config.oakShortbow);
+            gem.BuyGearIfNecessarySingleItem(config.shortbow);
+            gem.BuyGearIfNecessarySingleItem(config.knife);
+            gem.BuyGearIfNecessaryMultipleOfItem(config.addyArrow,500,Calculations.random(1000,2000));
+            gem.BuyGearIfNecessaryMultipleOfItem(config.mithArrow,1000,7000);
+            gem.BuyGearIfNecessaryMultipleOfItem(config.ironArrow,1,Calculations.random(1500,2500));
+            gem.BuyGearIfNecessarySingleItem(config.greendHideVambraces);
+            gem.BuyGearIfNecessarySingleItem(config.leatherVambraces);
         }
 
 
@@ -142,6 +157,8 @@ public class BuyGear extends AbstractTask {
         bm.OpenBank();
         bm.DepositAllInventory();
         bm.CloseBank();
+
+
 
 
         return Calculations.random(600,1200);

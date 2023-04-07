@@ -4,13 +4,13 @@ import dataStructures.nameQuantity;
 import org.dreambot.api.methods.Calculations;
 import org.dreambot.api.methods.container.impl.Inventory;
 import org.dreambot.api.methods.container.impl.bank.Bank;
-import org.dreambot.api.methods.container.impl.bank.BankLocation;
 import org.dreambot.api.methods.container.impl.bank.BankMode;
 import org.dreambot.api.methods.container.impl.equipment.Equipment;
 
 import java.util.ArrayList;
 import java.util.List;
 
+import static org.dreambot.api.Client.getLocalPlayer;
 import static org.dreambot.api.methods.MethodProvider.*;
 
 public class BankingMethods extends AbstractMethod {
@@ -76,7 +76,7 @@ public class BankingMethods extends AbstractMethod {
     }
 
     public void WithdrawXItem(String name, int quantity){
-        log("withdraw " + name);
+        log("[m] Withdraw X Item " + name);
         if(Bank.contains(name)) {
             while (!Inventory.contains(name)) {
                 if (Bank.withdraw(name, quantity)) {
@@ -114,22 +114,24 @@ public class BankingMethods extends AbstractMethod {
         }
     }
 
+
     public void OpenBank() {
         log("[m] Opening Bank");
-        while(!Bank.isOpen()){
-            if(Bank.open()) {
-                log("Bank open");
+        while(!Bank.isOpen()) {
+            if (Bank.isOpen() || Bank.open()) {
                 sleepUntil(Bank::isOpen, Calculations.random(3000, 4000));
             }
-            else sleep(Calculations.random(3000,4000));
+            else{
+                sleepUntil(() -> !getLocalPlayer().isMoving(),Calculations.random(5000,6000)); // TODO - could improve this to be wait until within 3 tiles or so of the bank, so we can click the bank while running
+            }
         }
     }
 
     public void CloseBank() {
         log("[m] Closing Bank");
-        while(Bank.isOpen()){
-            if(Bank.close()) {
-                sleepUntil(() -> !Bank.isOpen(), Calculations.random(1000, 3000));
+        while(Bank.isOpen()) {
+            if (Bank.close()) {
+                sleepUntil(() -> !Bank.isOpen(), Calculations.random(3000, 4000));
             }
         }
     }
@@ -138,7 +140,7 @@ public class BankingMethods extends AbstractMethod {
         log("[m] Deposit All Inventory");
         while(!Inventory.isEmpty()){
             if(Bank.depositAllItems()){
-                sleepUntil(() -> Inventory.isEmpty(),Calculations.random(2000,3000));
+                sleepUntil(Inventory::isEmpty,Calculations.random(2000,3000));
             }
         }
     }
@@ -152,28 +154,13 @@ public class BankingMethods extends AbstractMethod {
         }
     }
 
-    public void WithdrawOnlyCoins(){
-        OpenBank();
-        if(Inventory.onlyContains(config.coins)){
-            CloseBank();
-        }
-        while(!Inventory.onlyContains(config.coins)) {
-            if (!Inventory.isEmpty()) {
-                DepositAllInventory();
-            }
-            if (Inventory.isEmpty()) {
-                if (Bank.withdrawAll(config.coins)) {
-                    sleepUntil(() -> !Inventory.isEmpty(), Calculations.random(2000, 3000));
-                }
-            }
-        }
-    }
-
     public void WithdrawAllOfOneItem(String name){
-        while(!Inventory.contains(name)) {
-            if(Bank.setWithdrawMode(BankMode.ITEM)) {
-                if (Bank.withdrawAll(name)) {
-                    sleepUntil(() -> Inventory.contains(name), Calculations.random(5000, 6000));
+        if(Bank.contains(name)) {
+            while(!Inventory.contains(name)) {
+                if (Bank.setWithdrawMode(BankMode.ITEM)) {
+                    if (Bank.withdrawAll(name)) {
+                        sleepUntil(() -> Inventory.contains(name), Calculations.random(5000, 6000));
+                    }
                 }
             }
         }

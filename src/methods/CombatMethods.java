@@ -31,7 +31,8 @@ public class CombatMethods extends AbstractMethod {
             }
             if (currentNpc.interact("Attack")) { //currentNpc will return true if we succesfully attacked the rat, if that happens we want to wait a bit to make sure we are in combat
                 log(currentNpc.getName());
-                sleepUntil(() -> getLocalPlayer().getCharacterInteractingWithMe() == currentNpc, Calculations.random(7000,10000)); //Wait a max of 2 seconds or until we are in combat
+                //sleepUntil(() -> getLocalPlayer().getCharacterInteractingWithMe() == currentNpc, Calculations.random(7000,10000)); //Wait a max of 2 seconds or until we are in combat
+                sleepUntil(() -> getLocalPlayer().getInteractingCharacter() == currentNpc, Calculations.random(7000,10000)); //Wait a max of 2 seconds or until we are in combat
             }
         }
     }
@@ -116,21 +117,30 @@ public class CombatMethods extends AbstractMethod {
                         }
                     }
                 }
-
             }
         }
-
     }
 
     public void TurnPrayerOff(Prayer prayer){
-        if (Prayers.isActive(prayer)) {
-            Prayers.toggle(false,prayer);
+        if(OpenTab(Tab.PRAYER)) {
+            if (Prayers.isActive(prayer)) {
+                Prayers.toggle(false, prayer);
+            }
         }
     }
 
     public void TurnPrayerOn(Prayer prayer){
-        if (!Prayers.isActive(prayer)) {
-            Prayers.toggle(true,prayer);
+        while(!Prayers.isActive(prayer)) {
+            if (OpenTab(Tab.PRAYER)) {
+                if (Skills.getBoostedLevels(Skill.PRAYER) > 0) {
+                    log("boosted above 0");
+                    if (!Prayers.isActive(prayer)) {
+                        log("protect magic not active");
+                        Prayers.toggle(true, prayer);
+                        log("should toggle");
+                    }
+                }
+            }
         }
     }
 
@@ -142,20 +152,21 @@ public class CombatMethods extends AbstractMethod {
     }
 
     public boolean TurnAutoRetaliateOn(){
-        if(OpenTab(Tab.COMBAT)) {
-            if (!Combat.isAutoRetaliateOn()) {
+        if (!Combat.isAutoRetaliateOn()) {
+            if (OpenTab(Tab.COMBAT)) {
                 Combat.toggleAutoRetaliate(true);
-                sleepUntil(Combat::isAutoRetaliateOn,Calculations.random(2000,3000));
+                sleepUntil(Combat::isAutoRetaliateOn, Calculations.random(2000, 3000));
+
             }
         }
         return Combat.isAutoRetaliateOn();
     }
 
     public boolean TurnAutoRetaliateOff(){
-        if(OpenTab(Tab.COMBAT)) {
-            if (Combat.isAutoRetaliateOn()) {
+        if (Combat.isAutoRetaliateOn()) {
+            if (OpenTab(Tab.COMBAT)) {
                 Combat.toggleAutoRetaliate(false);
-                sleepUntil(() -> !Combat.isAutoRetaliateOn(),Calculations.random(2000,3000));
+                sleepUntil(() -> !Combat.isAutoRetaliateOn(), Calculations.random(2000, 3000));
             }
         }
         return !Combat.isAutoRetaliateOn();

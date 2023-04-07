@@ -22,6 +22,7 @@ public class InitialBankOpen extends AbstractTask {
     public int execute() {
         log("[T] Initial Bank Open");
         config.setStatus("Initial Bank Open");
+        // TODO - have to manually code this because open bank
         bm.OpenBank();
         bm.CloseBank();
         config.setInitBankOpened(true);

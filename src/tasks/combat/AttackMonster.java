@@ -15,12 +15,10 @@ public class AttackMonster extends AbstractTask {
 
     @Override
     public boolean accept() {
-        //log("interacting character: " + getLocalPlayer().getInteractingCharacter());
-        //log("char interacting with us: " + getLocalPlayer().getCharacterInteractingWithMe());
         if((config.largeGiantRatArea.contains(getLocalPlayer()) && config.getState().equals(Config.State.RATS)) || (config.giantFrogArea.contains(getLocalPlayer()) && config.getState().equals(Config.State.FROGS)) || (config.mossGiantWildernessArea.contains(getLocalPlayer()) && config.getState().equals(Config.State.MOSSGIANTS))){ // in combat area
-            if(Inventory.contains(config.lobster)){ // with supplies
-                if(config.getCurFightingStyle() != Config.FightingStyle.MELEE || Inventory.contains(config.strPot1, config.strPot2, config.strPot3, config.strPot4)) {
-                    if (!getLocalPlayer().isInCombat() && !getLocalPlayer().isMoving()) {
+            if(Inventory.contains(config.lobster)){ // with heals
+                if(config.getCurFightingStyle() != Config.FightingStyle.MELEE || Inventory.contains(config.strPot1, config.strPot2, config.strPot3, config.strPot4)) { // and str pots if melee
+                    if (!getLocalPlayer().isInCombat() && !getLocalPlayer().isMoving()) { // not fighting or about to fight
                         return true;
                     }
                     // this fixes leveling up while attacking error
@@ -39,23 +37,13 @@ public class AttackMonster extends AbstractTask {
         config.setStatus("Attacking " + config.getCurMonster());
         // walk to monster if too far away
         cm.AttackMonster(config.getCurMonster());
-        // check if run needs to be enabled
-        // TODO - turn into function
-        if(!Walking.isRunEnabled()){
-            if (Walking.getRunEnergy() > config.getNextRunEnergyPercentage()) {
-                if(Walking.toggleRun()){
-                    config.setNextRunEnergyPercentage(Calculations.random(10,50));
-                    sleepUntil(Walking::isRunEnabled,Calculations.random(500));
-                }
-            }
-        }
 
         // TODO- probably should not exist here
         // turn auto retailiate on if necessary
         if(!Combat.isAutoRetaliateOn()){
             Combat.toggleAutoRetaliate(true);
         }
-        return Calculations.random(400,1300);
+        return Calculations.random(400,1000);
     }
 
 }

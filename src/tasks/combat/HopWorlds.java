@@ -2,23 +2,21 @@ package tasks.combat;
 
 import org.dreambot.api.methods.Calculations;
 import org.dreambot.api.methods.interactive.Players;
-import org.dreambot.api.methods.tabs.Tab;
-import org.dreambot.api.methods.tabs.Tabs;
 import org.dreambot.api.methods.world.World;
 import org.dreambot.api.methods.world.Worlds;
 import org.dreambot.api.methods.worldhopper.WorldHopper;
 import org.dreambot.api.wrappers.interactive.Player;
 import tasks.AbstractTask;
 
-import java.util.ArrayList;
 import java.util.List;
 
 public class HopWorlds extends AbstractTask {
 
-    private List<Player> allPlayersInteractingWithCurMonster = new ArrayList<>();
+    // TODO -figure out how to just hop to the world after yours (keep in mind f2p and p2p mix so can't just +1)
+
     @Override
     public boolean accept() {
-        allPlayersInteractingWithCurMonster = Players.all(p -> p != null && p.getInteractingCharacter() != null && p.getInteractingCharacter().getName().equals(config.getCurMonster()));
+        List<Player> allPlayersInteractingWithCurMonster = Players.all(p -> p != null && p.getInteractingCharacter() != null && p.getInteractingCharacter().getName() != null && p.getInteractingCharacter().getName().equals(config.getCurMonster()));
         return allPlayersInteractingWithCurMonster != null && allPlayersInteractingWithCurMonster.size() >= 2 && getLocalPlayer().getInteractingCharacter() == null;
     }
 
@@ -28,7 +26,6 @@ public class HopWorlds extends AbstractTask {
         config.setStatus("Hopping Worlds");
         // F2P, no level requirement, no PVP world
         World world = Worlds.getRandomWorld(w -> w.isF2P() && !w.isPVP() && w.getMinimumLevel() == 0);
-        //World world = Worlds.getWorld(w -> w.getWorld() != Worlds.getMyWorld().getWorld() && w.isF2P() && !w.isPVP() && w.getMinimumLevel() == 0);
         WorldHopper.hopWorld(world);
         return Calculations.random(5000,7000);
     }
